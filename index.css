@@ -4675,9 +4675,9 @@ body {
   color: rgba(0, 0, 0, 0.65);
   background: #fff;
   line-height: 46px;
-  -webkit-transition: background 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), width 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
-  -o-transition: background 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), width 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
-  transition: background 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), width 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -webkit-transition: background .3s, width .2s;
+  -o-transition: background .3s, width .2s;
+  transition: background .3s, width .2s;
 }
 .ant-menu-hidden {
   display: none;
@@ -5357,9 +5357,9 @@ body {
           flex: auto;
 }
 .ant-layout-sider {
-  -webkit-transition: all 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
-  -o-transition: all 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
-  transition: all 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -webkit-transition: all .2s;
+  -o-transition: all .2s;
+  transition: all .2s;
   position: relative;
   background: #00182E;
   /* fix firefox can't set width smaller than content on flex item */
