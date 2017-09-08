@@ -18604,9 +18604,13 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
 .errorIcon___3dzef i {
   margin-right: 4px;
 }
+.errorPopover___2aoQw .ant-popover-title {
+  height: 42px;
+  line-height: 42px;
+}
 .errorPopover___2aoQw .ant-popover-inner-content {
   padding: 0;
-  max-height: 400px;
+  max-height: 300px;
   overflow: auto;
   min-width: 240px;
 }
