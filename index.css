@@ -6704,9 +6704,9 @@ textarea.ant-input {
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
 .input___1LOPY {
-  -webkit-transition: all .3s;
-  -o-transition: all .3s;
-  transition: all .3s;
+  -webkit-transition: width 0.3s, margin-left 0.3s;
+  -o-transition: width 0.3s, margin-left 0.3s;
+  transition: width 0.3s, margin-left 0.3s;
   width: 0;
   background: transparent;
   border-radius: 0;
@@ -15110,6 +15110,7 @@ textarea.ant-time-picker-input {
   height: 100%;
 }
 .miniProgress___2g_hV .target___sdx8g {
+  cursor: pointer;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -15321,8 +15322,15 @@ textarea.ant-time-picker-input {
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
 .iconGroup___1vzhe i {
+  -webkit-transition: color 0.32s;
+  -o-transition: color 0.32s;
+  transition: color 0.32s;
+  color: rgba(0, 0, 0, 0.43);
   cursor: pointer;
   margin-left: 16px;
+}
+.iconGroup___1vzhe i:hover {
+  color: rgba(0, 0, 0, 0.65);
 }
 .rankingList___Brgov {
   margin-top: 25px;
@@ -15400,14 +15408,14 @@ textarea.ant-time-picker-input {
     margin-right: 8px;
   }
 }
-@media screen and (max-width: 576px) {
-  .salesExtra___3C7yg {
-    display: none;
+@media screen and (max-width: 768px) {
+  .rankingTitle___2oxX2 {
+    margin-top: 16px;
   }
+}
+@media screen and (max-width: 576px) {
   .salesExtraWrap___jYwMD {
-    position: absolute;
-    top: 50px;
-    left: 24px;
+    display: none;
   }
   .salesCard___Aa8eS .ant-tabs-content {
     padding-top: 30px;
@@ -15426,35 +15434,38 @@ textarea.ant-time-picker-input {
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
-.activeChart___1zkVl {
+.activeChart___2gg7T {
   position: relative;
 }
-.activeChartGrid___ISrbt p {
+.activeChartGrid___1c3gt p {
   position: absolute;
   top: 80px;
 }
-.activeChartGrid___ISrbt p:last-child {
+.activeChartGrid___1c3gt p:last-child {
   top: 115px;
 }
-.activeChartLegend___1vz5H {
+.activeChartLegend___1IQVJ {
   position: relative;
   font-size: 0;
   margin-top: 8px;
   height: 20px;
   line-height: 20px;
 }
-.activeChartLegend___1vz5H span {
+.activeChartLegend___1IQVJ span {
   display: inline-block;
   font-size: 12px;
   text-align: center;
   width: 33.33%;
 }
-.activeChartLegend___1vz5H span:first-child {
+.activeChartLegend___1IQVJ span:first-child {
   text-align: left;
 }
-.activeChartLegend___1vz5H span:last-child {
+.activeChartLegend___1IQVJ span:last-child {
   text-align: right;
 }
+/* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
+/* stylelint-disable declaration-bang-space-before */
+/* stylelint-disable declaration-bang-space-before */
 .mapChart___2HwRk {
   padding-top: 46px;
   height: 436px;
@@ -17582,16 +17593,6 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   width: 86px;
   height: 40px;
 }
-@media screen and (max-width: 576px) {
-  .search___3Mk-v .ant-input-group .ant-input {
-    width: 300px;
-  }
-}
-@media screen and (max-width: 480px) {
-  .search___3Mk-v .ant-input-group .ant-input {
-    width: 200px;
-  }
-}
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
@@ -17653,6 +17654,7 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   text-align: justify;
   margin-right: -1em;
   padding-right: 1em;
+  color: rgba(0, 0, 0, 0.65);
 }
 .cardDescription___IW8Xv:before {
   content: '...';
