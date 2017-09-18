@@ -5426,7 +5426,7 @@ body {
   -webkit-transition: all .3s;
   -o-transition: all .3s;
   transition: all .3s;
-  background: #00284D;
+  background: #00284d;
   overflow: hidden;
 }
 .logo___39YMk img {
@@ -8036,7 +8036,8 @@ textarea.ant-input {
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
 .globalFooter___3DBsQ {
-  margin: 32px 28px 16px;
+  padding: 16px;
+  margin: 32px 0 16px 0;
   text-align: center;
 }
 .globalFooter___3DBsQ .links___6ev0g {
@@ -15385,8 +15386,11 @@ textarea.ant-time-picker-input {
 .salesExtra___3C7yg a:hover {
   color: #108ee9;
 }
-.salesCard___Aa8eS .ant-tabs-content {
-  padding: 0 24px 24px 24px;
+.salesCard___Aa8eS .salesBar___3puFu {
+  padding: 0 0 24px 24px;
+}
+.salesCard___Aa8eS .salesRank___2nFRz {
+  padding: 0 24px 24px 0;
 }
 .salesCard___Aa8eS .ant-tabs-bar {
   padding-left: 24px;
