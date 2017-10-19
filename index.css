@@ -12125,6 +12125,7 @@ textarea.ant-pagination-options-quick-jumper input {
 }
 .list___1lWoV .item___1242i .avatar___2-sz5 {
   background: #fff;
+  margin-top: 4px;
 }
 .list___1lWoV .item___1242i.read___2tE3k {
   opacity: .4;
@@ -12137,11 +12138,7 @@ textarea.ant-pagination-options-quick-jumper input {
 }
 .list___1lWoV .item___1242i .title___1Pd3z {
   font-weight: normal;
-  color: rgba(0, 0, 0, 0.65);
-  overflow: hidden;
-  -o-text-overflow: ellipsis;
-     text-overflow: ellipsis;
-  white-space: nowrap;
+  margin-bottom: 8px;
 }
 .list___1lWoV .item___1242i .description___3lcqZ {
   font-size: 12px;
@@ -12157,6 +12154,7 @@ textarea.ant-pagination-options-quick-jumper input {
   color: rgba(0, 0, 0, 0.45);
   font-weight: normal;
   margin-right: 0;
+  margin-top: -1.5px;
 }
 .notFound___3nj3q {
   text-align: center;
@@ -12203,11 +12201,14 @@ textarea.ant-pagination-options-quick-jumper input {
   font-size: 16px;
   padding: 4px;
 }
+.tabs___uEGXz .ant-tabs-tab-active {
+  font-weight: 500;
+}
 .tabs___uEGXz .ant-tabs-nav-scroll {
   text-align: center;
 }
 .tabs___uEGXz .ant-tabs-bar {
-  margin-bottom: 0;
+  margin-bottom: 4px;
 }
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
