@@ -12303,7 +12303,7 @@ textarea.ant-pagination-options-quick-jumper input {
 .title___1S-Sy {
   font-size: 33px;
   color: rgba(0, 0, 0, 0.85);
-  font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Myriad Pro Semibold', Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
   position: relative;
   top: -2px;
 }
@@ -18818,6 +18818,7 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   overflow: hidden;
 }
 .descriptionList___2FHUE .title___3TqAx {
+  font-size: 14px;
   color: rgba(0, 0, 0, 0.85);
   font-weight: 500;
   margin-bottom: 16px;
@@ -18848,11 +18849,21 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
 .descriptionList___2FHUE.vertical___2mJ0a .detail___3EvQv {
   display: block;
 }
+.descriptionListSmall___2wAfc .title___3TqAx {
+  margin-bottom: 12px;
+}
+.descriptionListSmall___2wAfc .term___2dRiT {
+  padding-bottom: 8px;
+}
+.descriptionListLarge___VhyLB .title___3TqAx {
+  font-size: 16px;
+}
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
 .title___3LdEX {
   color: rgba(0, 0, 0, 0.85);
+  font-size: 16px;
   font-weight: 500;
   margin-bottom: 16px;
 }
@@ -19319,42 +19330,47 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
-.editableItem___ED0c1 {
-  line-height: 32px;
-  display: table;
-  width: 100%;
-  margin-top: -5.5px;
+.headerList___kgJTk {
+  margin-bottom: 4px;
 }
-.editableItem___ED0c1 .wrapper___226hs {
-  display: table-row;
-}
-.editableItem___ED0c1 .wrapper___226hs > * {
-  display: table-cell;
-}
-.editableItem___ED0c1 .wrapper___226hs > *:first-child {
-  width: 85%;
-}
-.editableItem___ED0c1 .wrapper___226hs .icon___D8lug {
-  cursor: pointer;
-  text-align: right;
-}
-/* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
-/* stylelint-disable declaration-bang-space-before */
-/* stylelint-disable declaration-bang-space-before */
 .tabsCard___25pQf {
   margin-bottom: 24px;
+}
+.tabsCard___25pQf .ant-card-head {
+  padding: 0 16px;
 }
 .noData___1hrYn {
   color: rgba(0, 0, 0, 0.25);
   text-align: center;
   line-height: 64px;
+  font-size: 16px;
+}
+.noData___1hrYn i {
+  font-size: 24px;
+  margin-right: 16px;
+  position: relative;
+  top: 3px;
 }
 .heading___17CpO {
   color: rgba(0, 0, 0, 0.85);
   font-size: 20px;
 }
+.stepDescription___1NYPh {
+  font-size: 14px;
+  position: relative;
+  left: 38px;
+}
+.stepDescription___1NYPh > div {
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
 .textSecondary___34LfX {
   color: rgba(0, 0, 0, 0.45);
+}
+@media screen and (max-width: 576px) {
+  .stepDescription___1NYPh {
+    left: 8px;
+  }
 }
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -19534,9 +19550,9 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   margin: 0 auto;
 }
 .result___Hm4g7 .icon___3gQI1 {
-  font-size: 72px;
-  line-height: 72px;
-  margin-bottom: 24px;
+  font-size: 64px;
+  line-height: 64px;
+  margin-bottom: 32px;
 }
 .result___Hm4g7 .icon___3gQI1 > .success___mKc7I {
   color: #52c41a;
@@ -19545,14 +19561,15 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   color: #f5222d;
 }
 .result___Hm4g7 .title___3_4zg {
-  font-size: 24px;
+  font-size: 20px;
   color: rgba(0, 0, 0, 0.85);
   font-weight: 500;
-  line-height: 32px;
+  line-height: 28px;
   margin-bottom: 8px;
 }
 .result___Hm4g7 .description___1xuel {
   font-size: 14px;
+  line-height: 22px;
   color: rgba(0, 0, 0, 0.45);
   margin-bottom: 16px;
 }
@@ -19564,7 +19581,7 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   text-align: left;
 }
 .result___Hm4g7 .actions___1qj92 {
-  margin-top: 32px;
+  margin-top: 40px;
 }
 .result___Hm4g7 .actions___1qj92 button:not(:last-child) {
   margin-right: 8px;
@@ -19638,6 +19655,10 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   padding: 0 2px;
   margin: 0 -2px;
 }
+.main___apn1V .tabs___1BMQr .ant-tabs-tab {
+  font-size: 16px;
+  line-height: 24px;
+}
 .main___apn1V .ant-tabs .ant-tabs-bar {
   border-bottom: 0;
   margin-bottom: 24px;
@@ -19695,6 +19716,7 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
 .main___apn1V .other___3eH3S {
   text-align: left;
   margin-top: 24px;
+  line-height: 22px;
 }
 .main___apn1V .other___3eH3S .register___2YH5F {
   float: right;
