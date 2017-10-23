@@ -3050,6 +3050,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.ant-tabs-tab-active {
+  font-weight: 500;
+}
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
@@ -3136,7 +3139,6 @@ body {
   filter: blur(0.5px);
   /* autoprefixer: off */
   filter: progid\:DXImageTransform\.Microsoft\.Blur(PixelRadius\=1, MakeShadow\=false);
-  /* autoprefixer: on */
   -webkit-transform: translateZ(0);
 }
 .ant-spin-blur:after {
@@ -5711,8 +5713,8 @@ body {
 .header___PfVin {
   padding: 0 12px 0 0;
   background: #fff;
-  -webkit-box-shadow: 0 1px 4px rgba(0, 21, 41, 0.12);
-          box-shadow: 0 1px 4px rgba(0, 21, 41, 0.12);
+  -webkit-box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+          box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   position: relative;
 }
 .logo___39YMk {
@@ -12206,9 +12208,6 @@ textarea.ant-pagination-options-quick-jumper input {
 .icon___3-axl {
   font-size: 16px;
   padding: 4px;
-}
-.tabs___uEGXz .ant-tabs-tab-active {
-  font-weight: 500;
 }
 .tabs___uEGXz .ant-tabs-nav-scroll {
   text-align: center;
