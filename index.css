@@ -15955,6 +15955,14 @@ textarea.ant-time-picker-input {
   line-height: 32px;
   font-size: 24px;
 }
+.tagCloud___1zMc4 canvas {
+  -webkit-transform: scale(0.25);
+      -ms-transform: scale(0.25);
+          transform: scale(0.25);
+  -webkit-transform-origin: 0 0;
+      -ms-transform-origin: 0 0;
+          transform-origin: 0 0;
+}
 .timelineChart___3pR8a {
   background: #fff;
 }
