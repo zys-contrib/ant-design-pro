@@ -5756,11 +5756,10 @@ body {
   color: #fff;
   display: inline-block;
   vertical-align: middle;
-  font-size: 18px;
+  font-size: 20px;
   margin-left: 12px;
-  font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  margin-top: -3px;
-  font-weight: bold;
+  font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-weight: 600;
 }
 .ant-layout-sider-collapsed .logo___39YMk {
   padding-left: 24px;
@@ -12307,9 +12306,10 @@ textarea.ant-pagination-options-quick-jumper input {
 .title___1S-Sy {
   font-size: 33px;
   color: rgba(0, 0, 0, 0.85);
-  font-family: 'Myriad Pro Semibold', Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-weight: 600;
   position: relative;
-  top: -2px;
+  top: 2px;
 }
 .desc___2SfO0 {
   font-size: 14px;
@@ -17989,7 +17989,7 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
 .standardTable___19HoL .ant-table-pagination {
-  margin-bottom: 0;
+  margin-top: 24px;
 }
 .standardTable___19HoL .tableAlert___36N8r {
   margin-bottom: 16px;
@@ -18004,9 +18004,6 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
-.tableList___3qt8w {
-  padding-bottom: 8px;
-}
 .tableList___3qt8w .tableListOperator___3GBJB {
   margin-bottom: 16px;
 }
@@ -18175,7 +18172,7 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   color: #1890ff;
 }
 .coverCardList___2S9HR .ant-card-meta-description {
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(0, 0, 0, 0.45);
   height: 44px;
   line-height: 22px;
   overflow: hidden;
@@ -18255,7 +18252,7 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   content: '';
   margin-top: 0.2em;
   position: absolute;
-  right: 0;
+  right: 14px;
   width: 1em;
   height: 1em;
 }
@@ -18337,11 +18334,11 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   width: 50%;
 }
 .filterCardList___1un-F .cardInfo___3rT0N > div p {
-  color: rgba(0, 0, 0, 0.45);
   line-height: 32px;
   font-size: 24px;
 }
 .filterCardList___1un-F .cardInfo___3rT0N > div p:first-child {
+  color: rgba(0, 0, 0, 0.45);
   font-size: 12px;
   line-height: 20px;
   margin-bottom: 4px;
@@ -18605,7 +18602,7 @@ a.listItemMetaTitle___2hSaJ {
   line-height: 48px;
 }
 .standardList___zDvO5 .ant-list-pagination {
-  margin-top: 16px;
+  margin-top: 24px;
 }
 .standardList___zDvO5 .headerInfo___3xama {
   position: relative;
