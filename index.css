@@ -8051,7 +8051,7 @@ textarea.ant-input {
   border-bottom: none;
   padding-top: 0;
   padding-bottom: 0;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .ant-list-grid .ant-list-item-content {
   display: block;
@@ -13601,7 +13601,6 @@ tr.ant-table-expanded-row:hover {
 .ant-card-actions > li {
   float: left;
   text-align: center;
-  height: 16px;
   margin: 12px 0;
   color: rgba(0, 0, 0, 0.45);
 }
@@ -13609,11 +13608,9 @@ tr.ant-table-expanded-row:hover {
   display: inline-block;
   font-size: 14px;
   cursor: pointer;
-  height: 32px;
-  line-height: 32px;
+  line-height: 22px;
   min-width: 32px;
   position: relative;
-  top: -8px;
 }
 .ant-card-actions > li > span:hover {
   color: #1890ff;
@@ -13664,6 +13661,9 @@ tr.ant-table-expanded-row:hover {
 .ant-card-type-inner .ant-card-extra {
   padding: 13.5px 0;
 }
+.ant-card-meta {
+  margin: -4px 0;
+}
 .ant-card-meta-content {
   display: table-row;
 }
@@ -13689,7 +13689,7 @@ tr.ant-table-expanded-row:hover {
   color: rgba(0, 0, 0, 0.85);
   font-weight: 500;
 }
-.ant-card-meta-desscription {
+.ant-card-meta-description {
   color: rgba(0, 0, 0, 0.45);
 }
 .ant-card-loading .ant-card-body {
@@ -15640,6 +15640,17 @@ textarea.ant-time-picker-input {
 .ant-divider-inner-text {
   display: inline-block;
   padding: 0 24px;
+}
+.ant-divider-dashed {
+  background: none;
+  border-top: 1px dashed #e8e8e8;
+}
+.ant-divider-horizontal.ant-divider-with-text.ant-divider-dashed {
+  border-top: 0;
+}
+.ant-divider-horizontal.ant-divider-with-text.ant-divider-dashed:before,
+.ant-divider-horizontal.ant-divider-with-text.ant-divider-dashed:after {
+  border-style: dashed none none;
 }
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -18012,6 +18023,7 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
 }
 .tableListForm___1dJWV .ant-form-item {
   margin-bottom: 24px;
+  margin-right: 0;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -18172,23 +18184,26 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
 .coverCardList___2S9HR {
   margin-bottom: -24px;
 }
-.coverCardList___2S9HR .ant-card-meta-title > a {
+.coverCardList___2S9HR .card___fvrpH .ant-card-meta-title {
+  margin-bottom: 4px;
+}
+.coverCardList___2S9HR .card___fvrpH .ant-card-meta-title > a {
   color: rgba(0, 0, 0, 0.85);
 }
-.coverCardList___2S9HR .ant-card:hover .ant-card-meta-title > a {
-  color: #1890ff;
-}
-.coverCardList___2S9HR .ant-card-meta-description {
-  color: rgba(0, 0, 0, 0.45);
+.coverCardList___2S9HR .card___fvrpH .ant-card-meta-description {
   height: 44px;
   line-height: 22px;
   overflow: hidden;
+}
+.coverCardList___2S9HR .card___fvrpH:hover .ant-card-meta-title > a {
+  color: #1890ff;
 }
 .coverCardList___2S9HR .cardItemContent___2G7vG {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  margin-top: 12px;
+  margin-top: 16px;
+  margin-bottom: -4px;
   line-height: 20px;
   height: 20px;
 }
@@ -18213,8 +18228,11 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
 .cardList___3NYPm {
   margin-bottom: -24px;
 }
-.cardList___3NYPm .ant-card-meta-content {
-  margin-top: 0;
+.cardList___3NYPm .card___1-dGI .ant-card-meta-title {
+  margin-bottom: 12px;
+}
+.cardList___3NYPm .card___1-dGI .ant-card-actions {
+  background: #f7f9fa;
 }
 .extraImg___1VTe6 {
   margin-top: -60px;
@@ -18229,7 +18247,7 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   border-color: #d9d9d9;
   color: rgba(0, 0, 0, 0.45);
   width: 100%;
-  height: 185px;
+  height: 188px;
 }
 .cardAvatar___1i0Os {
   width: 48px;
@@ -18244,7 +18262,6 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   text-align: justify;
   margin-right: -1em;
   padding-right: 1em;
-  color: rgba(0, 0, 0, 0.65);
 }
 .cardDescription___IW8Xv:before {
   background: #fff;
@@ -18317,6 +18334,9 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
 }
 .filterCardList___1un-F .ant-card-meta-avatar {
   font-size: 0;
+}
+.filterCardList___1un-F .ant-card-actions {
+  background: #f7f9fa;
 }
 .filterCardList___1un-F .cardInfo___3rT0N {
   zoom: 1;
