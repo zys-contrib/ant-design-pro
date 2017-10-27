@@ -19570,10 +19570,12 @@ a.listItemMetaTitle___2hSaJ {
 }
 .exception___2aJ0K .imgEle___BEmAa {
   height: 360px;
-  width: 430px;
+  width: 100%;
+  max-width: 430px;
   float: right;
   background-repeat: no-repeat;
   background-position: 50% 50%;
+  background-size: 100% 100%;
 }
 .exception___2aJ0K .content___Vjtij {
   -webkit-box-flex: 1;
