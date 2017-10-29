@@ -15655,20 +15655,33 @@ textarea.ant-time-picker-input {
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
-.pie___3QH0n .content___2ztxK {
+.pie___3QH0n {
   position: relative;
+}
+.pie___3QH0n .chart___1f8KI {
+  position: relative;
+}
+.pie___3QH0n.hasLegend___1FtoJ .chart___1f8KI {
+  width: calc(100% - 264px);
+  margin-left: 24px;
 }
 .pie___3QH0n .legend___2d31L {
   position: absolute;
-  top: 50%;
   right: 0;
   min-width: 200px;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+      -ms-transform: translateY(-50%);
+          transform: translateY(-50%);
 }
 .pie___3QH0n .legend___2d31L li {
   cursor: pointer;
   margin-bottom: 16px;
   height: 22px;
   line-height: 22px;
+}
+.pie___3QH0n .legend___2d31L li:last-child {
+  margin-bottom: 0;
 }
 .pie___3QH0n .dot___2FHTR {
   border-radius: 8px;
@@ -15700,13 +15713,14 @@ textarea.ant-time-picker-input {
   margin-bottom: 8px;
 }
 .pie___3QH0n .total___Du-qd {
-  opacity: 0;
   position: absolute;
   left: 50%;
   top: 50%;
-  margin-top: -34px;
   text-align: center;
   height: 62px;
+  -webkit-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
 }
 .pie___3QH0n .total___Du-qd > h4 {
   color: rgba(0, 0, 0, 0.45);
@@ -15719,9 +15733,22 @@ textarea.ant-time-picker-input {
 .pie___3QH0n .total___Du-qd > p {
   color: rgba(0, 0, 0, 0.85);
   display: block;
-  font-size: 30px;
+  font-size: 1.3em;
   height: 32px;
   line-height: 32px;
+  white-space: nowrap;
+}
+@media screen and (max-width: 576px) {
+  .pie___3QH0n.hasLegend___1FtoJ .chart___1f8KI {
+    width: 100%;
+    margin: 0 0 32px 0;
+  }
+  .pie___3QH0n .legend___2d31L {
+    position: static;
+    -webkit-transform: none;
+        -ms-transform: none;
+            transform: none;
+  }
 }
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -15872,9 +15899,6 @@ textarea.ant-time-picker-input {
   display: inline-block;
   font-size: 14px;
   line-height: 22px;
-}
-.trendItem___3hZUV + .trendItem___3hZUV {
-  margin-left: 16px;
 }
 .trendItem___3hZUV .up___1Gzuk,
 .trendItem___3hZUV .down___cKGkR {
@@ -16085,7 +16109,7 @@ td.alignRight___3Y_eb,
 th.alignRight___3Y_eb {
   text-align: right!important;
 }
-.trend___2aPpf {
+.trendText___2M8Xw {
   margin-left: 8px;
   color: rgba(0, 0, 0, 0.85);
 }
