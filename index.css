@@ -93,6 +93,10 @@ address {
   font-style: normal;
   line-height: inherit;
 }
+input[type="text"],
+textarea {
+  -webkit-appearance: none;
+}
 ol,
 ul,
 dl {
@@ -15675,8 +15679,7 @@ textarea.ant-time-picker-input {
   position: relative;
 }
 .pie___3QH0n.hasLegend___1FtoJ .chart___1f8KI {
-  width: calc(100% - 252px);
-  margin-left: 12px;
+  width: calc(100% - 240px);
 }
 .pie___3QH0n .legend___2d31L {
   position: absolute;
@@ -15686,6 +15689,7 @@ textarea.ant-time-picker-input {
   -webkit-transform: translateY(-50%);
       -ms-transform: translateY(-50%);
           transform: translateY(-50%);
+  margin: 0 20px;
 }
 .pie___3QH0n .legend___2d31L li {
   cursor: pointer;
@@ -15746,7 +15750,7 @@ textarea.ant-time-picker-input {
 .pie___3QH0n .total___Du-qd > p {
   color: rgba(0, 0, 0, 0.85);
   display: block;
-  font-size: 1.3em;
+  font-size: 1.2em;
   height: 32px;
   line-height: 32px;
   white-space: nowrap;
@@ -15756,7 +15760,7 @@ textarea.ant-time-picker-input {
   margin: 0 0 32px 0;
 }
 .legendBlock___29WVj .legend___2d31L {
-  position: static;
+  position: relative;
   -webkit-transform: none;
       -ms-transform: none;
           transform: none;
