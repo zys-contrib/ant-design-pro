@@ -16152,9 +16152,6 @@ th.alignRight___3Y_eb {
     padding-top: 30px;
   }
 }
-/* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
-/* stylelint-disable declaration-bang-space-before */
-/* stylelint-disable declaration-bang-space-before */
 .activeChart___2gg7T {
   position: relative;
 }
@@ -18099,7 +18096,7 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
       -ms-flex: 1;
           flex: 1;
 }
-.tableListForm___1dJWV .sumbitButtons___3biPK {
+.tableListForm___1dJWV .submitButtons___1OObt {
   white-space: nowrap;
   margin-bottom: 24px;
 }
