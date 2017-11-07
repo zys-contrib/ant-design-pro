@@ -16195,10 +16195,12 @@ th.alignRight___3Y_eb {
 .mapChart___2HwRk {
   padding-top: 24px;
   height: 457px;
+  text-align: center;
 }
 .mapChart___2HwRk img {
-  width: 100%;
-  max-height: 457px;
+  display: inline-block;
+  max-width: 100%;
+  max-height: 437px;
 }
 .pieCard___2yz7H .pie-stat {
   font-size: 24px!important;
