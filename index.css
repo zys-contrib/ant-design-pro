@@ -18300,6 +18300,52 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
 .coverCardList___2S9HR .cardList___K4zGh {
   margin-top: 24px;
 }
+.ellipsis___3yaoc {
+  display: inline-block;
+  word-break: break-all;
+}
+.lines___2uqf2 {
+  position: relative;
+}
+.lines___2uqf2 .shadow___3K_Gr {
+  color: transparent;
+  opacity: 0;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 9999px;
+  z-index: -999;
+}
+.linesCover___1l8NP {
+  overflow: hidden;
+  position: relative;
+  line-height: 1.5em;
+  max-height: 4.5em;
+  text-align: justify;
+  margin-right: -1em;
+  padding-right: 1em;
+  display: block;
+}
+.linesCover___1l8NP:before {
+  background: #fff;
+  -webkit-box-shadow: 2px 0 2px 1px rgba(255, 255, 255, 0.2);
+          box-shadow: 2px 0 2px 1px rgba(255, 255, 255, 0.2);
+  content: '...';
+  padding-left: 0;
+  position: absolute;
+  right: 14px;
+  bottom: 0;
+}
+.linesCover___1l8NP:after {
+  background: white;
+  content: '';
+  margin-top: 0.2em;
+  position: absolute;
+  right: 14px;
+  width: 1em;
+  height: 1em;
+}
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
