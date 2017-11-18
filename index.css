@@ -5195,6 +5195,7 @@ mark {
   height: 40px;
   margin-top: 4px;
   margin-bottom: 4px;
+  display: inline-block;
   width: 100%;
   overflow: hidden;
   -o-text-overflow: ellipsis;
@@ -12812,6 +12813,9 @@ span.ant-radio + * {
 .ant-table-without-column-header .ant-table-title + .ant-table-content,
 .ant-table-without-column-header table {
   border-radius: 0;
+}
+.ant-table-tbody > tr.ant-table-row-selected td {
+  background: #fafafa;
 }
 .ant-table-thead > tr > th.ant-table-column-sort {
   background: #f5f5f5;
