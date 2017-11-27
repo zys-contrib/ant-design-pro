@@ -12315,12 +12315,6 @@ textarea.ant-pagination-options-quick-jumper input {
   font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-weight: 600;
 }
-.ant-layout-sider-collapsed .logo___39YMk {
-  padding-left: 24px;
-}
-.ant-layout-sider-collapsed .logo___39YMk > a {
-  width: 32px;
-}
 .trigger___yPNRl {
   font-size: 20px;
   line-height: 64px;
@@ -17749,7 +17743,7 @@ form .ant-input-group-addon .ant-cascader-picker:only-child {
   line-height: 22px;
   margin: 0 0 16px 0;
 }
-.steps___33UUb {
+.steps___33UUb.ant-steps {
   max-width: 750px;
   margin: 16px auto;
 }
