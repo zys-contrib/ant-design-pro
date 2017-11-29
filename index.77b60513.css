@@ -12315,7 +12315,7 @@ textarea.ant-pagination-options-quick-jumper input {
   font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-weight: 600;
 }
-.trigger___yPNRl {
+i.trigger___yPNRl {
   font-size: 20px;
   line-height: 64px;
   cursor: pointer;
@@ -12324,7 +12324,7 @@ textarea.ant-pagination-options-quick-jumper input {
   transition: all .3s;
   padding: 0 24px;
 }
-.trigger___yPNRl:hover {
+i.trigger___yPNRl:hover {
   background: #e6f7ff;
 }
 @media screen and (max-width: 480px) {
