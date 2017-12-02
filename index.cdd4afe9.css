@@ -12256,7 +12256,7 @@ textarea.ant-pagination-options-quick-jumper input {
   float: right;
   background-repeat: no-repeat;
   background-position: 50% 50%;
-  background-size: 100% 100%;
+  background-size: contain;
 }
 .exception___2aJ0K .content___Vjtij {
   -webkit-box-flex: 1;
