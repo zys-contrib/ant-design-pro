@@ -19621,6 +19621,63 @@ textarea.ant-input-number {
 /* stylelint-disable no-duplicate-selectors */
 /* stylelint-disable declaration-bang-space-before,no-duplicate-selectors */
 /* stylelint-disable declaration-bang-space-before,no-duplicate-selectors */
+.filterCardList___LBzRF {
+  margin-bottom: -24px;
+}
+.filterCardList___LBzRF .ant-card-meta-content {
+  margin-top: 0;
+}
+.filterCardList___LBzRF .ant-card-meta-avatar {
+  font-size: 0;
+}
+.filterCardList___LBzRF .ant-card-actions {
+  background: #f7f9fa;
+}
+.filterCardList___LBzRF .cardInfo___2YNFN {
+  zoom: 1;
+  margin-top: 16px;
+  margin-left: 40px;
+}
+.filterCardList___LBzRF .cardInfo___2YNFN:before,
+.filterCardList___LBzRF .cardInfo___2YNFN:after {
+  content: " ";
+  display: table;
+}
+.filterCardList___LBzRF .cardInfo___2YNFN:after {
+  clear: both;
+  visibility: hidden;
+  font-size: 0;
+  height: 0;
+}
+.filterCardList___LBzRF .cardInfo___2YNFN > div {
+  position: relative;
+  text-align: left;
+  float: left;
+  width: 50%;
+}
+.filterCardList___LBzRF .cardInfo___2YNFN > div p {
+  line-height: 32px;
+  font-size: 24px;
+  margin: 0;
+}
+.filterCardList___LBzRF .cardInfo___2YNFN > div p:first-child {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  line-height: 20px;
+  margin-bottom: 4px;
+}
+.wan___3V8QW {
+  position: relative;
+  top: -2px;
+  font-size: 14px;
+  font-style: normal;
+  line-height: 20px;
+  margin-left: 2px;
+}
+/* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
+/* stylelint-disable no-duplicate-selectors */
+/* stylelint-disable declaration-bang-space-before,no-duplicate-selectors */
+/* stylelint-disable declaration-bang-space-before,no-duplicate-selectors */
 .listContent___3e7x5 .description___m-SdV {
   line-height: 22px;
   max-width: 720px;
