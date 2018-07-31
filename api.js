@@ -24417,13 +24417,6 @@ module.exports = baseIsNative;
 
 /***/ }),
 
-/***/ "iHdM":
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__("tEs8");
-
-/***/ }),
-
 /***/ "iS0Z":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -28090,7 +28083,9 @@ var Dialog_Dialog = function (_React$Component) {
         _this.onKeyDown = function (e) {
             var props = _this.props;
             if (props.keyboard && e.keyCode === es_KeyCode.ESC) {
+                e.stopPropagation();
                 _this.close(e);
+                return;
             }
             // keep focus inside dialog
             if (props.visible) {
@@ -29136,12 +29131,12 @@ var Modal_Modal = function (_React$Component) {
                 null,
                 react["createElement"](
                     es_button,
-                    { onClick: _this.handleCancel },
+                    extends_default()({ onClick: _this.handleCancel }, _this.props.cancelButtonProps),
                     cancelText || locale.cancelText
                 ),
                 react["createElement"](
                     es_button,
-                    { type: okType, loading: confirmLoading, onClick: _this.handleOk },
+                    extends_default()({ type: okType, loading: confirmLoading, onClick: _this.handleOk }, _this.props.okButtonProps),
                     okText || locale.okText
                 )
             );
@@ -29198,7 +29193,9 @@ Modal_Modal.defaultProps = {
     maskTransitionName: 'fade',
     confirmLoading: false,
     visible: false,
-    okType: 'primary'
+    okType: 'primary',
+    okButtonDisabled: false,
+    cancelButtonDisabled: false
 };
 Modal_Modal.propTypes = {
     prefixCls: prop_types_default.a.string,
@@ -31367,7 +31364,7 @@ var card_Card = function (_React$Component) {
                 es_tabs,
                 extends_default()({}, extraProps, { className: prefixCls + "-head-tabs", size: "large", onChange: this.onTabChange }),
                 tabList.map(function (item) {
-                    return react["createElement"](es_tabs.TabPane, { tab: item.tab, key: item.key });
+                    return react["createElement"](es_tabs.TabPane, { tab: item.tab, disabled: item.disabled, key: item.key });
                 })
             ) : null;
             if (title || extra || tabs) {
@@ -31762,6 +31759,8 @@ function remove(array, item) {
 
 
 
+
+
 var ColumnManager_ColumnManager = function () {
   function ColumnManager(columns, elements) {
     classCallCheck_default()(this, ColumnManager);
@@ -31771,174 +31770,189 @@ var ColumnManager_ColumnManager = function () {
     this.columns = columns || this.normalize(elements);
   }
 
-  ColumnManager.prototype.isAnyColumnsFixed = function isAnyColumnsFixed() {
-    var _this = this;
+  createClass_default()(ColumnManager, [{
+    key: 'isAnyColumnsFixed',
+    value: function isAnyColumnsFixed() {
+      var _this = this;
 
-    return this._cache('isAnyColumnsFixed', function () {
-      return _this.columns.some(function (column) {
-        return !!column.fixed;
-      });
-    });
-  };
-
-  ColumnManager.prototype.isAnyColumnsLeftFixed = function isAnyColumnsLeftFixed() {
-    var _this2 = this;
-
-    return this._cache('isAnyColumnsLeftFixed', function () {
-      return _this2.columns.some(function (column) {
-        return column.fixed === 'left' || column.fixed === true;
-      });
-    });
-  };
-
-  ColumnManager.prototype.isAnyColumnsRightFixed = function isAnyColumnsRightFixed() {
-    var _this3 = this;
-
-    return this._cache('isAnyColumnsRightFixed', function () {
-      return _this3.columns.some(function (column) {
-        return column.fixed === 'right';
-      });
-    });
-  };
-
-  ColumnManager.prototype.leftColumns = function leftColumns() {
-    var _this4 = this;
-
-    return this._cache('leftColumns', function () {
-      return _this4.groupedColumns().filter(function (column) {
-        return column.fixed === 'left' || column.fixed === true;
-      });
-    });
-  };
-
-  ColumnManager.prototype.rightColumns = function rightColumns() {
-    var _this5 = this;
-
-    return this._cache('rightColumns', function () {
-      return _this5.groupedColumns().filter(function (column) {
-        return column.fixed === 'right';
-      });
-    });
-  };
-
-  ColumnManager.prototype.leafColumns = function leafColumns() {
-    var _this6 = this;
-
-    return this._cache('leafColumns', function () {
-      return _this6._leafColumns(_this6.columns);
-    });
-  };
-
-  ColumnManager.prototype.leftLeafColumns = function leftLeafColumns() {
-    var _this7 = this;
-
-    return this._cache('leftLeafColumns', function () {
-      return _this7._leafColumns(_this7.leftColumns());
-    });
-  };
-
-  ColumnManager.prototype.rightLeafColumns = function rightLeafColumns() {
-    var _this8 = this;
-
-    return this._cache('rightLeafColumns', function () {
-      return _this8._leafColumns(_this8.rightColumns());
-    });
-  };
-
-  // add appropriate rowspan and colspan to column
-
-
-  ColumnManager.prototype.groupedColumns = function groupedColumns() {
-    var _this9 = this;
-
-    return this._cache('groupedColumns', function () {
-      var _groupColumns = function _groupColumns(columns) {
-        var currentRow = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-        var parentColumn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-        var rows = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
-
-        // track how many rows we got
-        rows[currentRow] = rows[currentRow] || [];
-        var grouped = [];
-        var setRowSpan = function setRowSpan(column) {
-          var rowSpan = rows.length - currentRow;
-          if (column && !column.children && // parent columns are supposed to be one row
-          rowSpan > 1 && (!column.rowSpan || column.rowSpan < rowSpan)) {
-            column.rowSpan = rowSpan;
-          }
-        };
-        columns.forEach(function (column, index) {
-          var newColumn = extends_default()({}, column);
-          rows[currentRow].push(newColumn);
-          parentColumn.colSpan = parentColumn.colSpan || 0;
-          if (newColumn.children && newColumn.children.length > 0) {
-            newColumn.children = _groupColumns(newColumn.children, currentRow + 1, newColumn, rows);
-            parentColumn.colSpan += newColumn.colSpan;
-          } else {
-            parentColumn.colSpan++;
-          }
-          // update rowspan to all same row columns
-          for (var i = 0; i < rows[currentRow].length - 1; ++i) {
-            setRowSpan(rows[currentRow][i]);
-          }
-          // last column, update rowspan immediately
-          if (index + 1 === columns.length) {
-            setRowSpan(newColumn);
-          }
-          grouped.push(newColumn);
+      return this._cache('isAnyColumnsFixed', function () {
+        return _this.columns.some(function (column) {
+          return !!column.fixed;
         });
-        return grouped;
-      };
-      return _groupColumns(_this9.columns);
-    });
-  };
+      });
+    }
+  }, {
+    key: 'isAnyColumnsLeftFixed',
+    value: function isAnyColumnsLeftFixed() {
+      var _this2 = this;
 
-  ColumnManager.prototype.normalize = function normalize(elements) {
-    var _this10 = this;
+      return this._cache('isAnyColumnsLeftFixed', function () {
+        return _this2.columns.some(function (column) {
+          return column.fixed === 'left' || column.fixed === true;
+        });
+      });
+    }
+  }, {
+    key: 'isAnyColumnsRightFixed',
+    value: function isAnyColumnsRightFixed() {
+      var _this3 = this;
 
-    var columns = [];
-    react_default.a.Children.forEach(elements, function (element) {
-      if (!react_default.a.isValidElement(element)) {
-        return;
+      return this._cache('isAnyColumnsRightFixed', function () {
+        return _this3.columns.some(function (column) {
+          return column.fixed === 'right';
+        });
+      });
+    }
+  }, {
+    key: 'leftColumns',
+    value: function leftColumns() {
+      var _this4 = this;
+
+      return this._cache('leftColumns', function () {
+        return _this4.groupedColumns().filter(function (column) {
+          return column.fixed === 'left' || column.fixed === true;
+        });
+      });
+    }
+  }, {
+    key: 'rightColumns',
+    value: function rightColumns() {
+      var _this5 = this;
+
+      return this._cache('rightColumns', function () {
+        return _this5.groupedColumns().filter(function (column) {
+          return column.fixed === 'right';
+        });
+      });
+    }
+  }, {
+    key: 'leafColumns',
+    value: function leafColumns() {
+      var _this6 = this;
+
+      return this._cache('leafColumns', function () {
+        return _this6._leafColumns(_this6.columns);
+      });
+    }
+  }, {
+    key: 'leftLeafColumns',
+    value: function leftLeafColumns() {
+      var _this7 = this;
+
+      return this._cache('leftLeafColumns', function () {
+        return _this7._leafColumns(_this7.leftColumns());
+      });
+    }
+  }, {
+    key: 'rightLeafColumns',
+    value: function rightLeafColumns() {
+      var _this8 = this;
+
+      return this._cache('rightLeafColumns', function () {
+        return _this8._leafColumns(_this8.rightColumns());
+      });
+    }
+
+    // add appropriate rowspan and colspan to column
+
+  }, {
+    key: 'groupedColumns',
+    value: function groupedColumns() {
+      var _this9 = this;
+
+      return this._cache('groupedColumns', function () {
+        var _groupColumns = function _groupColumns(columns) {
+          var currentRow = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+          var parentColumn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+          var rows = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
+
+          // track how many rows we got
+          rows[currentRow] = rows[currentRow] || [];
+          var grouped = [];
+          var setRowSpan = function setRowSpan(column) {
+            var rowSpan = rows.length - currentRow;
+            if (column && !column.children && // parent columns are supposed to be one row
+            rowSpan > 1 && (!column.rowSpan || column.rowSpan < rowSpan)) {
+              column.rowSpan = rowSpan;
+            }
+          };
+          columns.forEach(function (column, index) {
+            var newColumn = extends_default()({}, column);
+            rows[currentRow].push(newColumn);
+            parentColumn.colSpan = parentColumn.colSpan || 0;
+            if (newColumn.children && newColumn.children.length > 0) {
+              newColumn.children = _groupColumns(newColumn.children, currentRow + 1, newColumn, rows);
+              parentColumn.colSpan += newColumn.colSpan;
+            } else {
+              parentColumn.colSpan++;
+            }
+            // update rowspan to all same row columns
+            for (var i = 0; i < rows[currentRow].length - 1; ++i) {
+              setRowSpan(rows[currentRow][i]);
+            }
+            // last column, update rowspan immediately
+            if (index + 1 === columns.length) {
+              setRowSpan(newColumn);
+            }
+            grouped.push(newColumn);
+          });
+          return grouped;
+        };
+        return _groupColumns(_this9.columns);
+      });
+    }
+  }, {
+    key: 'normalize',
+    value: function normalize(elements) {
+      var _this10 = this;
+
+      var columns = [];
+      react_default.a.Children.forEach(elements, function (element) {
+        if (!react_default.a.isValidElement(element)) {
+          return;
+        }
+        var column = extends_default()({}, element.props);
+        if (element.key) {
+          column.key = element.key;
+        }
+        if (element.type.isTableColumnGroup) {
+          column.children = _this10.normalize(column.children);
+        }
+        columns.push(column);
+      });
+      return columns;
+    }
+  }, {
+    key: 'reset',
+    value: function reset(columns, elements) {
+      this.columns = columns || this.normalize(elements);
+      this._cached = {};
+    }
+  }, {
+    key: '_cache',
+    value: function _cache(name, fn) {
+      if (name in this._cached) {
+        return this._cached[name];
       }
-      var column = extends_default()({}, element.props);
-      if (element.key) {
-        column.key = element.key;
-      }
-      if (element.type.isTableColumnGroup) {
-        column.children = _this10.normalize(column.children);
-      }
-      columns.push(column);
-    });
-    return columns;
-  };
-
-  ColumnManager.prototype.reset = function reset(columns, elements) {
-    this.columns = columns || this.normalize(elements);
-    this._cached = {};
-  };
-
-  ColumnManager.prototype._cache = function _cache(name, fn) {
-    if (name in this._cached) {
+      this._cached[name] = fn();
       return this._cached[name];
     }
-    this._cached[name] = fn();
-    return this._cached[name];
-  };
+  }, {
+    key: '_leafColumns',
+    value: function _leafColumns(columns) {
+      var _this11 = this;
 
-  ColumnManager.prototype._leafColumns = function _leafColumns(columns) {
-    var _this11 = this;
-
-    var leafColumns = [];
-    columns.forEach(function (column) {
-      if (!column.children) {
-        leafColumns.push(column);
-      } else {
-        leafColumns.push.apply(leafColumns, _this11._leafColumns(column.children));
-      }
-    });
-    return leafColumns;
-  };
+      var leafColumns = [];
+      columns.forEach(function (column) {
+        if (!column.children) {
+          leafColumns.push(column);
+        } else {
+          leafColumns.push.apply(leafColumns, toConsumableArray_default()(_this11._leafColumns(column.children)));
+        }
+      });
+      return leafColumns;
+    }
+  }]);
 
   return ColumnManager;
 }();
@@ -32166,6 +32180,7 @@ var get_default = /*#__PURE__*/__webpack_require__.n(get);
 
 
 
+
 function isInvalidRenderCellText(text) {
   return text && !react_default.a.isValidElement(text) && Object.prototype.toString.call(text) === '[object Object]';
 }
@@ -32174,6 +32189,8 @@ var TableCell_TableCell = function (_React$Component) {
   inherits_default()(TableCell, _React$Component);
 
   function TableCell() {
+    var _ref;
+
     var _temp, _this, _ret;
 
     classCallCheck_default()(this, TableCell);
@@ -32182,7 +32199,7 @@ var TableCell_TableCell = function (_React$Component) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = possibleConstructorReturn_default()(this, _React$Component.call.apply(_React$Component, [this].concat(args))), _this), _this.handleClick = function (e) {
+    return _ret = (_temp = (_this = possibleConstructorReturn_default()(this, (_ref = TableCell.__proto__ || Object.getPrototypeOf(TableCell)).call.apply(_ref, [this].concat(args))), _this), _this.handleClick = function (e) {
       var _this$props = _this.props,
           record = _this$props.record,
           onCellClick = _this$props.column.onCellClick;
@@ -32193,76 +32210,79 @@ var TableCell_TableCell = function (_React$Component) {
     }, _temp), possibleConstructorReturn_default()(_this, _ret);
   }
 
-  TableCell.prototype.render = function render() {
-    var _props = this.props,
-        record = _props.record,
-        indentSize = _props.indentSize,
-        prefixCls = _props.prefixCls,
-        indent = _props.indent,
-        index = _props.index,
-        expandIcon = _props.expandIcon,
-        column = _props.column,
-        BodyCell = _props.component;
-    var dataIndex = column.dataIndex,
-        render = column.render,
-        _column$className = column.className,
-        className = _column$className === undefined ? '' : _column$className;
+  createClass_default()(TableCell, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          record = _props.record,
+          indentSize = _props.indentSize,
+          prefixCls = _props.prefixCls,
+          indent = _props.indent,
+          index = _props.index,
+          expandIcon = _props.expandIcon,
+          column = _props.column,
+          BodyCell = _props.component;
+      var dataIndex = column.dataIndex,
+          render = column.render,
+          _column$className = column.className,
+          className = _column$className === undefined ? '' : _column$className;
 
-    // We should return undefined if no dataIndex is specified, but in order to
-    // be compatible with object-path's behavior, we return the record object instead.
+      // We should return undefined if no dataIndex is specified, but in order to
+      // be compatible with object-path's behavior, we return the record object instead.
 
-    var text = void 0;
-    if (typeof dataIndex === 'number') {
-      text = get_default()(record, dataIndex);
-    } else if (!dataIndex || dataIndex.length === 0) {
-      text = record;
-    } else {
-      text = get_default()(record, dataIndex);
-    }
-    var tdProps = {};
-    var colSpan = void 0;
-    var rowSpan = void 0;
-
-    if (render) {
-      text = render(text, record, index);
-      if (isInvalidRenderCellText(text)) {
-        tdProps = text.props || tdProps;
-        colSpan = tdProps.colSpan;
-        rowSpan = tdProps.rowSpan;
-        text = text.children;
+      var text = void 0;
+      if (typeof dataIndex === 'number') {
+        text = get_default()(record, dataIndex);
+      } else if (!dataIndex || dataIndex.length === 0) {
+        text = record;
+      } else {
+        text = get_default()(record, dataIndex);
       }
+      var tdProps = {};
+      var colSpan = void 0;
+      var rowSpan = void 0;
+
+      if (render) {
+        text = render(text, record, index);
+        if (isInvalidRenderCellText(text)) {
+          tdProps = text.props || tdProps;
+          colSpan = tdProps.colSpan;
+          rowSpan = tdProps.rowSpan;
+          text = text.children;
+        }
+      }
+
+      if (column.onCell) {
+        tdProps = extends_default()({}, tdProps, column.onCell(record));
+      }
+
+      // Fix https://github.com/ant-design/ant-design/issues/1202
+      if (isInvalidRenderCellText(text)) {
+        text = null;
+      }
+
+      var indentText = expandIcon ? react_default.a.createElement('span', {
+        style: { paddingLeft: indentSize * indent + 'px' },
+        className: prefixCls + '-indent indent-level-' + indent
+      }) : null;
+
+      if (rowSpan === 0 || colSpan === 0) {
+        return null;
+      }
+
+      if (column.align) {
+        tdProps.style = extends_default()({}, tdProps.style, { textAlign: column.align });
+      }
+
+      return react_default.a.createElement(
+        BodyCell,
+        extends_default()({ className: className, onClick: this.handleClick }, tdProps),
+        indentText,
+        expandIcon,
+        text
+      );
     }
-
-    if (column.onCell) {
-      tdProps = extends_default()({}, tdProps, column.onCell(record));
-    }
-
-    // Fix https://github.com/ant-design/ant-design/issues/1202
-    if (isInvalidRenderCellText(text)) {
-      text = null;
-    }
-
-    var indentText = expandIcon ? react_default.a.createElement('span', {
-      style: { paddingLeft: indentSize * indent + 'px' },
-      className: prefixCls + '-indent indent-level-' + indent
-    }) : null;
-
-    if (rowSpan === 0 || colSpan === 0) {
-      return null;
-    }
-
-    if (column.align) {
-      tdProps.style = extends_default()({}, tdProps.style, { textAlign: column.align });
-    }
-
-    return react_default.a.createElement(
-      BodyCell,
-      extends_default()({ className: className, onClick: this.handleClick }, tdProps),
-      indentText,
-      expandIcon,
-      text
-    );
-  };
+  }]);
 
   return TableCell;
 }(react_default.a.Component);
@@ -32291,25 +32311,15 @@ TableCell_TableCell.propTypes = {
 
 
 
+
+
 var TableRow_TableRow = function (_React$Component) {
   inherits_default()(TableRow, _React$Component);
-
-  TableRow.getDerivedStateFromProps = function getDerivedStateFromProps(nextProps, prevState) {
-    if (prevState.visible || !prevState.visible && nextProps.visible) {
-      return {
-        shouldRender: true,
-        visible: nextProps.visible
-      };
-    }
-    return {
-      visible: nextProps.visible
-    };
-  };
 
   function TableRow(props) {
     classCallCheck_default()(this, TableRow);
 
-    var _this = possibleConstructorReturn_default()(this, _React$Component.call(this, props));
+    var _this = possibleConstructorReturn_default()(this, (TableRow.__proto__ || Object.getPrototypeOf(TableRow)).call(this, props));
 
     _this.onRowClick = function (event) {
       var _this$props = _this.props,
@@ -32378,169 +32388,195 @@ var TableRow_TableRow = function (_React$Component) {
     return _this;
   }
 
-  TableRow.prototype.componentDidMount = function componentDidMount() {
-    if (this.state.shouldRender) {
-      this.saveRowRef();
+  createClass_default()(TableRow, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      if (this.state.shouldRender) {
+        this.saveRowRef();
+      }
     }
-  };
-
-  TableRow.prototype.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
-    return !!(this.props.visible || nextProps.visible);
-  };
-
-  TableRow.prototype.componentDidUpdate = function componentDidUpdate() {
-    if (this.state.shouldRender && !this.rowRef) {
-      this.saveRowRef();
+  }, {
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps) {
+      return !!(this.props.visible || nextProps.visible);
     }
-  };
-
-  TableRow.prototype.setExpanedRowHeight = function setExpanedRowHeight() {
-    var _extends2;
-
-    var _props = this.props,
-        store = _props.store,
-        rowKey = _props.rowKey;
-
-    var _store$getState = store.getState(),
-        expandedRowsHeight = _store$getState.expandedRowsHeight;
-
-    var height = this.rowRef.getBoundingClientRect().height;
-    expandedRowsHeight = extends_default()({}, expandedRowsHeight, (_extends2 = {}, _extends2[rowKey] = height, _extends2));
-    store.setState({ expandedRowsHeight: expandedRowsHeight });
-  };
-
-  TableRow.prototype.setRowHeight = function setRowHeight() {
-    var _props2 = this.props,
-        store = _props2.store,
-        index = _props2.index;
-
-    var fixedColumnsBodyRowsHeight = store.getState().fixedColumnsBodyRowsHeight.slice();
-    var height = this.rowRef.getBoundingClientRect().height;
-    fixedColumnsBodyRowsHeight[index] = height;
-    store.setState({ fixedColumnsBodyRowsHeight: fixedColumnsBodyRowsHeight });
-  };
-
-  TableRow.prototype.getStyle = function getStyle() {
-    var _props3 = this.props,
-        height = _props3.height,
-        visible = _props3.visible;
-
-
-    if (height && height !== this.style.height) {
-      this.style = extends_default()({}, this.style, { height: height });
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate() {
+      if (this.state.shouldRender && !this.rowRef) {
+        this.saveRowRef();
+      }
     }
+  }, {
+    key: 'setExpanedRowHeight',
+    value: function setExpanedRowHeight() {
+      var _props = this.props,
+          store = _props.store,
+          rowKey = _props.rowKey;
 
-    if (!visible && !this.style.display) {
-      this.style = extends_default()({}, this.style, { display: 'none' });
+      var _store$getState = store.getState(),
+          expandedRowsHeight = _store$getState.expandedRowsHeight;
+
+      var height = this.rowRef.getBoundingClientRect().height;
+      expandedRowsHeight = extends_default()({}, expandedRowsHeight, defineProperty_default()({}, rowKey, height));
+      store.setState({ expandedRowsHeight: expandedRowsHeight });
     }
+  }, {
+    key: 'setRowHeight',
+    value: function setRowHeight() {
+      var _props2 = this.props,
+          store = _props2.store,
+          rowKey = _props2.rowKey;
 
-    return this.style;
-  };
+      var _store$getState2 = store.getState(),
+          fixedColumnsBodyRowsHeight = _store$getState2.fixedColumnsBodyRowsHeight;
 
-  TableRow.prototype.saveRowRef = function saveRowRef() {
-    this.rowRef = react_dom_default.a.findDOMNode(this);
-
-    var _props4 = this.props,
-        isAnyColumnsFixed = _props4.isAnyColumnsFixed,
-        fixed = _props4.fixed,
-        expandedRow = _props4.expandedRow,
-        ancestorKeys = _props4.ancestorKeys;
-
-
-    if (!isAnyColumnsFixed) {
-      return;
+      var height = this.rowRef.getBoundingClientRect().height;
+      store.setState({
+        fixedColumnsBodyRowsHeight: extends_default()({}, fixedColumnsBodyRowsHeight, defineProperty_default()({}, rowKey, height))
+      });
     }
+  }, {
+    key: 'getStyle',
+    value: function getStyle() {
+      var _props3 = this.props,
+          height = _props3.height,
+          visible = _props3.visible;
 
-    if (!fixed && expandedRow) {
-      this.setExpanedRowHeight();
+
+      if (height && height !== this.style.height) {
+        this.style = extends_default()({}, this.style, { height: height });
+      }
+
+      if (!visible && !this.style.display) {
+        this.style = extends_default()({}, this.style, { display: 'none' });
+      }
+
+      return this.style;
     }
+  }, {
+    key: 'saveRowRef',
+    value: function saveRowRef() {
+      this.rowRef = react_dom_default.a.findDOMNode(this);
 
-    if (!fixed && ancestorKeys.length >= 0) {
-      this.setRowHeight();
+      var _props4 = this.props,
+          isAnyColumnsFixed = _props4.isAnyColumnsFixed,
+          fixed = _props4.fixed,
+          expandedRow = _props4.expandedRow,
+          ancestorKeys = _props4.ancestorKeys;
+
+
+      if (!isAnyColumnsFixed) {
+        return;
+      }
+
+      if (!fixed && expandedRow) {
+        this.setExpanedRowHeight();
+      }
+
+      if (!fixed && ancestorKeys.length >= 0) {
+        this.setRowHeight();
+      }
     }
-  };
+  }, {
+    key: 'render',
+    value: function render() {
+      if (!this.state.shouldRender) {
+        return null;
+      }
 
-  TableRow.prototype.render = function render() {
-    if (!this.state.shouldRender) {
-      return null;
+      var _props5 = this.props,
+          prefixCls = _props5.prefixCls,
+          columns = _props5.columns,
+          record = _props5.record,
+          rowKey = _props5.rowKey,
+          index = _props5.index,
+          onRow = _props5.onRow,
+          indent = _props5.indent,
+          indentSize = _props5.indentSize,
+          hovered = _props5.hovered,
+          height = _props5.height,
+          visible = _props5.visible,
+          components = _props5.components,
+          hasExpandIcon = _props5.hasExpandIcon,
+          renderExpandIcon = _props5.renderExpandIcon,
+          renderExpandIconCell = _props5.renderExpandIconCell;
+
+
+      var BodyRow = components.body.row;
+      var BodyCell = components.body.cell;
+
+      var className = this.props.className;
+
+
+      if (hovered) {
+        className += ' ' + prefixCls + '-hover';
+      }
+
+      var cells = [];
+
+      renderExpandIconCell(cells);
+
+      for (var i = 0; i < columns.length; i++) {
+        var column = columns[i];
+
+        warningOnce(column.onCellClick === undefined, 'column[onCellClick] is deprecated, please use column[onCell] instead.');
+
+        cells.push(react_default.a.createElement(es_TableCell, {
+          prefixCls: prefixCls,
+          record: record,
+          indentSize: indentSize,
+          indent: indent,
+          index: index,
+          column: column,
+          key: column.key || column.dataIndex,
+          expandIcon: hasExpandIcon(i) && renderExpandIcon(),
+          component: BodyCell
+        }));
+      }
+
+      var rowClassName = (prefixCls + ' ' + className + ' ' + prefixCls + '-level-' + indent).trim();
+
+      var rowProps = onRow(record, index);
+      var customStyle = rowProps ? rowProps.style : {};
+      var style = { height: height };
+
+      if (!visible) {
+        style.display = 'none';
+      }
+
+      style = extends_default()({}, style, customStyle);
+
+      return react_default.a.createElement(
+        BodyRow,
+        extends_default()({
+          onClick: this.onRowClick,
+          onDoubleClick: this.onRowDoubleClick,
+          onMouseEnter: this.onMouseEnter,
+          onMouseLeave: this.onMouseLeave,
+          onContextMenu: this.onContextMenu,
+          className: rowClassName
+        }, rowProps, {
+          style: style,
+          'data-row-key': rowKey
+        }),
+        cells
+      );
     }
-
-    var _props5 = this.props,
-        prefixCls = _props5.prefixCls,
-        columns = _props5.columns,
-        record = _props5.record,
-        index = _props5.index,
-        onRow = _props5.onRow,
-        indent = _props5.indent,
-        indentSize = _props5.indentSize,
-        hovered = _props5.hovered,
-        height = _props5.height,
-        visible = _props5.visible,
-        components = _props5.components,
-        hasExpandIcon = _props5.hasExpandIcon,
-        renderExpandIcon = _props5.renderExpandIcon,
-        renderExpandIconCell = _props5.renderExpandIconCell;
-
-
-    var BodyRow = components.body.row;
-    var BodyCell = components.body.cell;
-
-    var className = this.props.className;
-
-
-    if (hovered) {
-      className += ' ' + prefixCls + '-hover';
+  }], [{
+    key: 'getDerivedStateFromProps',
+    value: function getDerivedStateFromProps(nextProps, prevState) {
+      if (prevState.visible || !prevState.visible && nextProps.visible) {
+        return {
+          shouldRender: true,
+          visible: nextProps.visible
+        };
+      }
+      return {
+        visible: nextProps.visible
+      };
     }
-
-    var cells = [];
-
-    renderExpandIconCell(cells);
-
-    for (var i = 0; i < columns.length; i++) {
-      var column = columns[i];
-
-      warningOnce(column.onCellClick === undefined, 'column[onCellClick] is deprecated, please use column[onCell] instead.');
-
-      cells.push(react_default.a.createElement(es_TableCell, {
-        prefixCls: prefixCls,
-        record: record,
-        indentSize: indentSize,
-        indent: indent,
-        index: index,
-        column: column,
-        key: column.key || column.dataIndex,
-        expandIcon: hasExpandIcon(i) && renderExpandIcon(),
-        component: BodyCell
-      }));
-    }
-
-    var rowClassName = (prefixCls + ' ' + className + ' ' + prefixCls + '-level-' + indent).trim();
-
-    var rowProps = onRow(record, index);
-    var customStyle = rowProps ? rowProps.style : {};
-    var style = { height: height };
-
-    if (!visible) {
-      style.display = 'none';
-    }
-
-    style = extends_default()({}, style, customStyle);
-
-    return react_default.a.createElement(
-      BodyRow,
-      extends_default()({
-        onClick: this.onRowClick,
-        onDoubleClick: this.onRowDoubleClick,
-        onMouseEnter: this.onMouseEnter,
-        onMouseLeave: this.onMouseLeave,
-        onContextMenu: this.onContextMenu,
-        className: rowClassName
-      }, rowProps, {
-        style: style
-      }),
-      cells
-    );
-  };
+  }]);
 
   return TableRow;
 }(react_default.a.Component);
@@ -32587,7 +32623,6 @@ function TableRow_getRowHeight(state, props) {
   var expandedRowsHeight = state.expandedRowsHeight,
       fixedColumnsBodyRowsHeight = state.fixedColumnsBodyRowsHeight;
   var fixed = props.fixed,
-      index = props.index,
       rowKey = props.rowKey;
 
 
@@ -32599,8 +32634,8 @@ function TableRow_getRowHeight(state, props) {
     return expandedRowsHeight[rowKey];
   }
 
-  if (fixedColumnsBodyRowsHeight[index]) {
-    return fixedColumnsBodyRowsHeight[index];
+  if (fixedColumnsBodyRowsHeight[rowKey]) {
+    return fixedColumnsBodyRowsHeight[rowKey];
   }
 
   return null;
@@ -32632,41 +32667,46 @@ polyfill(TableRow_TableRow);
 
 
 
+
 var ExpandIcon_ExpandIcon = function (_React$Component) {
   inherits_default()(ExpandIcon, _React$Component);
 
   function ExpandIcon() {
     classCallCheck_default()(this, ExpandIcon);
 
-    return possibleConstructorReturn_default()(this, _React$Component.apply(this, arguments));
+    return possibleConstructorReturn_default()(this, (ExpandIcon.__proto__ || Object.getPrototypeOf(ExpandIcon)).apply(this, arguments));
   }
 
-  ExpandIcon.prototype.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
-    return !shallowequal_default()(nextProps, this.props);
-  };
-
-  ExpandIcon.prototype.render = function render() {
-    var _props = this.props,
-        expandable = _props.expandable,
-        prefixCls = _props.prefixCls,
-        onExpand = _props.onExpand,
-        needIndentSpaced = _props.needIndentSpaced,
-        expanded = _props.expanded,
-        record = _props.record;
-
-    if (expandable) {
-      var expandClassName = expanded ? 'expanded' : 'collapsed';
-      return react_default.a.createElement('span', {
-        className: prefixCls + '-expand-icon ' + prefixCls + '-' + expandClassName,
-        onClick: function onClick(e) {
-          return onExpand(record, e);
-        }
-      });
-    } else if (needIndentSpaced) {
-      return react_default.a.createElement('span', { className: prefixCls + '-expand-icon ' + prefixCls + '-spaced' });
+  createClass_default()(ExpandIcon, [{
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps) {
+      return !shallowequal_default()(nextProps, this.props);
     }
-    return null;
-  };
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          expandable = _props.expandable,
+          prefixCls = _props.prefixCls,
+          onExpand = _props.onExpand,
+          needIndentSpaced = _props.needIndentSpaced,
+          expanded = _props.expanded,
+          record = _props.record;
+
+      if (expandable) {
+        var expandClassName = expanded ? 'expanded' : 'collapsed';
+        return react_default.a.createElement('span', {
+          className: prefixCls + '-expand-icon ' + prefixCls + '-' + expandClassName,
+          onClick: function onClick(e) {
+            return onExpand(record, e);
+          }
+        });
+      } else if (needIndentSpaced) {
+        return react_default.a.createElement('span', { className: prefixCls + '-expand-icon ' + prefixCls + '-spaced' });
+      }
+      return null;
+    }
+  }]);
 
   return ExpandIcon;
 }(react_default.a.Component);
@@ -32689,10 +32729,13 @@ ExpandIcon_ExpandIcon.propTypes = {
 
 
 
+
 var ExpandableRow_ExpandableRow = function (_React$Component) {
   inherits_default()(ExpandableRow, _React$Component);
 
   function ExpandableRow() {
+    var _ref;
+
     var _temp, _this, _ret;
 
     classCallCheck_default()(this, ExpandableRow);
@@ -32701,7 +32744,7 @@ var ExpandableRow_ExpandableRow = function (_React$Component) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = possibleConstructorReturn_default()(this, _React$Component.call.apply(_React$Component, [this].concat(args))), _this), _this.hasExpandIcon = function (columnIndex) {
+    return _ret = (_temp = (_this = possibleConstructorReturn_default()(this, (_ref = ExpandableRow.__proto__ || Object.getPrototypeOf(ExpandableRow)).call.apply(_ref, [this].concat(args))), _this), _this.hasExpandIcon = function (columnIndex) {
       var expandRowByClick = _this.props.expandRowByClick;
 
       return !_this.expandIconAsCell && !expandRowByClick && columnIndex === _this.expandIconColumnIndex;
@@ -32756,45 +32799,50 @@ var ExpandableRow_ExpandableRow = function (_React$Component) {
     }, _temp), possibleConstructorReturn_default()(_this, _ret);
   }
 
-  ExpandableRow.prototype.componentWillUnmount = function componentWillUnmount() {
-    this.handleDestroy();
-  };
-
-  ExpandableRow.prototype.handleDestroy = function handleDestroy() {
-    var _props = this.props,
-        onExpandedChange = _props.onExpandedChange,
-        rowKey = _props.rowKey,
-        record = _props.record;
-
-    if (this.expandable) {
-      onExpandedChange(false, record, null, rowKey, true);
+  createClass_default()(ExpandableRow, [{
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      this.handleDestroy();
     }
-  };
+  }, {
+    key: 'handleDestroy',
+    value: function handleDestroy() {
+      var _props = this.props,
+          onExpandedChange = _props.onExpandedChange,
+          rowKey = _props.rowKey,
+          record = _props.record;
 
-  ExpandableRow.prototype.render = function render() {
-    var _props2 = this.props,
-        childrenColumnName = _props2.childrenColumnName,
-        expandedRowRender = _props2.expandedRowRender,
-        indentSize = _props2.indentSize,
-        record = _props2.record,
-        fixed = _props2.fixed;
+      if (this.expandable) {
+        onExpandedChange(false, record, null, rowKey, true);
+      }
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props2 = this.props,
+          childrenColumnName = _props2.childrenColumnName,
+          expandedRowRender = _props2.expandedRowRender,
+          indentSize = _props2.indentSize,
+          record = _props2.record,
+          fixed = _props2.fixed;
 
 
-    this.expandIconAsCell = fixed !== 'right' ? this.props.expandIconAsCell : false;
-    this.expandIconColumnIndex = fixed !== 'right' ? this.props.expandIconColumnIndex : -1;
-    var childrenData = record[childrenColumnName];
-    this.expandable = !!(childrenData || expandedRowRender);
+      this.expandIconAsCell = fixed !== 'right' ? this.props.expandIconAsCell : false;
+      this.expandIconColumnIndex = fixed !== 'right' ? this.props.expandIconColumnIndex : -1;
+      var childrenData = record[childrenColumnName];
+      this.expandable = !!(childrenData || expandedRowRender);
 
-    var expandableRowProps = {
-      indentSize: indentSize,
-      onRowClick: this.handleRowClick,
-      hasExpandIcon: this.hasExpandIcon,
-      renderExpandIcon: this.renderExpandIcon,
-      renderExpandIconCell: this.renderExpandIconCell
-    };
+      var expandableRowProps = {
+        indentSize: indentSize,
+        onRowClick: this.handleRowClick,
+        hasExpandIcon: this.hasExpandIcon,
+        renderExpandIcon: this.renderExpandIcon,
+        renderExpandIconCell: this.renderExpandIconCell
+      };
 
-    return this.props.children(expandableRowProps);
-  };
+      return this.props.children(expandableRowProps);
+    }
+  }]);
 
   return ExpandableRow;
 }(react_default.a.Component);
@@ -32818,9 +32866,9 @@ ExpandableRow_ExpandableRow.propTypes = {
 };
 
 
-/* harmony default export */ var es_ExpandableRow = (Object(mini_store_lib["connect"])(function (_ref, _ref2) {
-  var expandedRowKeys = _ref.expandedRowKeys;
-  var rowKey = _ref2.rowKey;
+/* harmony default export */ var es_ExpandableRow = (Object(mini_store_lib["connect"])(function (_ref2, _ref3) {
+  var expandedRowKeys = _ref2.expandedRowKeys;
+  var rowKey = _ref3.rowKey;
   return {
     expanded: !!~expandedRowKeys.indexOf(rowKey)
   };
@@ -32838,10 +32886,14 @@ ExpandableRow_ExpandableRow.propTypes = {
 
 
 
+
+
 var BaseTable_BaseTable = function (_React$Component) {
   inherits_default()(BaseTable, _React$Component);
 
   function BaseTable() {
+    var _ref;
+
     var _temp, _this, _ret;
 
     classCallCheck_default()(this, BaseTable);
@@ -32850,12 +32902,13 @@ var BaseTable_BaseTable = function (_React$Component) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = possibleConstructorReturn_default()(this, _React$Component.call.apply(_React$Component, [this].concat(args))), _this), _this.handleRowHover = function (isHover, key) {
+    return _ret = (_temp = (_this = possibleConstructorReturn_default()(this, (_ref = BaseTable.__proto__ || Object.getPrototypeOf(BaseTable)).call.apply(_ref, [this].concat(args))), _this), _this.handleRowHover = function (isHover, key) {
       _this.props.store.setState({
         currentHoverKey: isHover ? key : null
       });
     }, _this.renderRows = function (renderData, indent) {
-      var ancestorKeys = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+      var rows = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+      var ancestorKeys = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
       var table = _this.context.table;
       var columnManager = table.columnManager,
           components = table.components;
@@ -32876,9 +32929,6 @@ var BaseTable_BaseTable = function (_React$Component) {
           expander = _this$props.expander,
           isAnyColumnsFixed = _this$props.isAnyColumnsFixed;
 
-
-      var rows = [];
-
       var _loop = function _loop(i) {
         var record = renderData[i];
         var key = getRowKey(record, i);
@@ -32895,16 +32945,19 @@ var BaseTable_BaseTable = function (_React$Component) {
         } else if (fixed === 'right') {
           leafColumns = columnManager.rightLeafColumns();
         } else {
-          leafColumns = columnManager.leafColumns();
+          leafColumns = _this.getColumns(columnManager.leafColumns());
         }
 
         var rowPrefixCls = prefixCls + '-row';
+        var rowIndex = rows.filter(function (row) {
+          return !row.props.expandedRow;
+        }).length;
 
         var row = react_default.a.createElement(
           es_ExpandableRow,
           extends_default()({}, expander.props, {
             fixed: fixed,
-            index: i,
+            index: rowIndex,
             prefixCls: rowPrefixCls,
             record: record,
             key: key,
@@ -32920,7 +32973,7 @@ var BaseTable_BaseTable = function (_React$Component) {
                 indent: indent,
                 className: className,
                 record: record,
-                index: i,
+                index: rowIndex,
                 prefixCls: rowPrefixCls,
                 childrenColumnName: childrenColumnName,
                 columns: leafColumns,
@@ -32952,56 +33005,76 @@ var BaseTable_BaseTable = function (_React$Component) {
     }, _temp), possibleConstructorReturn_default()(_this, _ret);
   }
 
-  BaseTable.prototype.render = function render() {
-    var table = this.context.table;
-    var components = table.components;
-    var _table$props2 = table.props,
-        prefixCls = _table$props2.prefixCls,
-        scroll = _table$props2.scroll,
-        data = _table$props2.data,
-        getBodyWrapper = _table$props2.getBodyWrapper;
-    var _props = this.props,
-        expander = _props.expander,
-        tableClassName = _props.tableClassName,
-        hasHead = _props.hasHead,
-        hasBody = _props.hasBody,
-        fixed = _props.fixed,
-        columns = _props.columns;
+  createClass_default()(BaseTable, [{
+    key: 'getColumns',
+    value: function getColumns(cols) {
+      var _props = this.props,
+          _props$columns = _props.columns,
+          columns = _props$columns === undefined ? [] : _props$columns,
+          fixed = _props.fixed;
+      var table = this.context.table;
+      var prefixCls = table.props.prefixCls;
 
-    var tableStyle = {};
-
-    if (!fixed && scroll.x) {
-      // not set width, then use content fixed width
-      if (scroll.x === true) {
-        tableStyle.tableLayout = 'fixed';
-      } else {
-        tableStyle.width = scroll.x;
-      }
+      return (cols || columns).map(function (column) {
+        return extends_default()({}, column, {
+          className: !!column.fixed && !fixed ? classnames_default()(prefixCls + '-fixed-columns-in-body', column.className) : column.className
+        });
+      });
     }
+  }, {
+    key: 'render',
+    value: function render() {
+      var table = this.context.table;
+      var components = table.components;
+      var _table$props2 = table.props,
+          prefixCls = _table$props2.prefixCls,
+          scroll = _table$props2.scroll,
+          data = _table$props2.data,
+          getBodyWrapper = _table$props2.getBodyWrapper;
+      var _props2 = this.props,
+          expander = _props2.expander,
+          tableClassName = _props2.tableClassName,
+          hasHead = _props2.hasHead,
+          hasBody = _props2.hasBody,
+          fixed = _props2.fixed;
 
-    var Table = hasBody ? components.table : 'table';
-    var BodyWrapper = components.body.wrapper;
+      var tableStyle = {};
 
-    var body = void 0;
-    if (hasBody) {
-      body = react_default.a.createElement(
-        BodyWrapper,
-        { className: prefixCls + '-tbody' },
-        this.renderRows(data, 0)
+      if (!fixed && scroll.x) {
+        // not set width, then use content fixed width
+        if (scroll.x === true) {
+          tableStyle.tableLayout = 'fixed';
+        } else {
+          tableStyle.width = scroll.x;
+        }
+      }
+
+      var Table = hasBody ? components.table : 'table';
+      var BodyWrapper = components.body.wrapper;
+
+      var body = void 0;
+      if (hasBody) {
+        body = react_default.a.createElement(
+          BodyWrapper,
+          { className: prefixCls + '-tbody' },
+          this.renderRows(data, 0)
+        );
+        if (getBodyWrapper) {
+          body = getBodyWrapper(body);
+        }
+      }
+
+      var columns = this.getColumns();
+
+      return react_default.a.createElement(
+        Table,
+        { className: tableClassName, style: tableStyle, key: 'table' },
+        react_default.a.createElement(ColGroup, { columns: columns, fixed: fixed }),
+        hasHead && react_default.a.createElement(TableHeader, { expander: expander, columns: columns, fixed: fixed }),
+        body
       );
-      if (getBodyWrapper) {
-        body = getBodyWrapper(body);
-      }
     }
-
-    return react_default.a.createElement(
-      Table,
-      { className: tableClassName, style: tableStyle, key: 'table' },
-      react_default.a.createElement(ColGroup, { columns: columns, fixed: fixed }),
-      hasHead && react_default.a.createElement(TableHeader, { expander: expander, columns: columns, fixed: fixed }),
-      body
-    );
-  };
+  }]);
 
   return BaseTable;
 }(react_default.a.Component);
@@ -33220,13 +33293,15 @@ BodyTable.contextTypes = {
 
 
 
+
+
 var ExpandableTable_ExpandableTable = function (_React$Component) {
   inherits_default()(ExpandableTable, _React$Component);
 
   function ExpandableTable(props) {
     classCallCheck_default()(this, ExpandableTable);
 
-    var _this = possibleConstructorReturn_default()(this, _React$Component.call(this, props));
+    var _this = possibleConstructorReturn_default()(this, (ExpandableTable.__proto__ || Object.getPrototypeOf(ExpandableTable)).call(this, props));
 
     ExpandableTable__initialiseProps.call(_this);
 
@@ -33239,7 +33314,7 @@ var ExpandableTable_ExpandableTable = function (_React$Component) {
 
 
     var finnalExpandedRowKeys = [];
-    var rows = [].concat(data);
+    var rows = [].concat(toConsumableArray_default()(data));
 
     if (defaultExpandAllRows) {
       for (var i = 0; i < rows.length; i++) {
@@ -33261,89 +33336,100 @@ var ExpandableTable_ExpandableTable = function (_React$Component) {
     return _this;
   }
 
-  ExpandableTable.prototype.componentDidUpdate = function componentDidUpdate() {
-    if ('expandedRowKeys' in this.props) {
-      this.store.setState({
-        expandedRowKeys: this.props.expandedRowKeys
-      });
-    }
-  };
-
-  ExpandableTable.prototype.renderExpandedRow = function renderExpandedRow(record, index, _render, className, ancestorKeys, indent, fixed) {
-    var _props = this.props,
-        prefixCls = _props.prefixCls,
-        expandIconAsCell = _props.expandIconAsCell,
-        indentSize = _props.indentSize;
-
-    var colCount = void 0;
-    if (fixed === 'left') {
-      colCount = this.columnManager.leftLeafColumns().length;
-    } else if (fixed === 'right') {
-      colCount = this.columnManager.rightLeafColumns().length;
-    } else {
-      colCount = this.columnManager.leafColumns().length;
-    }
-    var columns = [{
-      key: 'extra-row',
-      render: function render() {
-        return {
-          props: {
-            colSpan: colCount
-          },
-          children: fixed !== 'right' ? _render(record, index, indent) : '&nbsp;'
-        };
+  createClass_default()(ExpandableTable, [{
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate() {
+      if ('expandedRowKeys' in this.props) {
+        this.store.setState({
+          expandedRowKeys: this.props.expandedRowKeys
+        });
       }
-    }];
-    if (expandIconAsCell && fixed !== 'right') {
-      columns.unshift({
-        key: 'expand-icon-placeholder',
-        render: function render() {
-          return null;
+    }
+  }, {
+    key: 'renderExpandedRow',
+    value: function renderExpandedRow(record, index, _render, className, ancestorKeys, indent, fixed) {
+      var _this2 = this;
+
+      var _props = this.props,
+          prefixCls = _props.prefixCls,
+          expandIconAsCell = _props.expandIconAsCell,
+          indentSize = _props.indentSize;
+
+      var parentKey = ancestorKeys[ancestorKeys.length - 1];
+      var rowKey = parentKey + '-extra-row';
+      var components = {
+        body: {
+          row: 'tr',
+          cell: 'td'
         }
+      };
+      var colCount = void 0;
+      if (fixed === 'left') {
+        colCount = this.columnManager.leftLeafColumns().length;
+      } else if (fixed === 'right') {
+        colCount = this.columnManager.rightLeafColumns().length;
+      } else {
+        colCount = this.columnManager.leafColumns().length;
+      }
+      var columns = [{
+        key: 'extra-row',
+        render: function render() {
+          var _store$getState = _this2.store.getState(),
+              expandedRowKeys = _store$getState.expandedRowKeys;
+
+          var expanded = !!~expandedRowKeys.indexOf(parentKey);
+          return {
+            props: {
+              colSpan: colCount
+            },
+            children: fixed !== 'right' ? _render(record, index, indent, expanded) : '&nbsp;'
+          };
+        }
+      }];
+      if (expandIconAsCell && fixed !== 'right') {
+        columns.unshift({
+          key: 'expand-icon-placeholder',
+          render: function render() {
+            return null;
+          }
+        });
+      }
+
+      return react_default.a.createElement(es_TableRow, {
+        key: rowKey,
+        columns: columns,
+        className: className,
+        rowKey: rowKey,
+        ancestorKeys: ancestorKeys,
+        prefixCls: prefixCls + '-expanded-row',
+        indentSize: indentSize,
+        indent: indent,
+        fixed: fixed,
+        components: components,
+        expandedRow: true
       });
     }
-    var parentKey = ancestorKeys[ancestorKeys.length - 1];
-    var rowKey = parentKey + '-extra-row';
-    var components = {
-      body: {
-        row: 'tr',
-        cell: 'td'
-      }
-    };
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props2 = this.props,
+          data = _props2.data,
+          childrenColumnName = _props2.childrenColumnName,
+          children = _props2.children;
 
-    return react_default.a.createElement(es_TableRow, {
-      key: rowKey,
-      columns: columns,
-      className: className,
-      rowKey: rowKey,
-      ancestorKeys: ancestorKeys,
-      prefixCls: prefixCls + '-expanded-row',
-      indentSize: indentSize,
-      indent: indent,
-      fixed: fixed,
-      components: components,
-      expandedRow: true
-    });
-  };
+      var needIndentSpaced = data.some(function (record) {
+        return record[childrenColumnName];
+      });
 
-  ExpandableTable.prototype.render = function render() {
-    var _props2 = this.props,
-        data = _props2.data,
-        childrenColumnName = _props2.childrenColumnName,
-        children = _props2.children;
-
-    var needIndentSpaced = data.some(function (record) {
-      return record[childrenColumnName];
-    });
-
-    return children({
-      props: this.props,
-      needIndentSpaced: needIndentSpaced,
-      renderRows: this.renderRows,
-      handleExpandChange: this.handleExpandChange,
-      renderExpandIndentCell: this.renderExpandIndentCell
-    });
-  };
+      return children({
+        props: this.props,
+        needIndentSpaced: needIndentSpaced,
+        renderRows: this.renderRows,
+        handleExpandChange: this.handleExpandChange,
+        renderExpandIndentCell: this.renderExpandIndentCell
+      });
+    }
+  }]);
 
   return ExpandableTable;
 }(react_default.a.Component);
@@ -33382,7 +33468,7 @@ ExpandableTable_ExpandableTable.defaultProps = {
 };
 
 var ExpandableTable__initialiseProps = function _initialiseProps() {
-  var _this2 = this;
+  var _this3 = this;
 
   this.handleExpandChange = function (expanded, record, event, rowKey) {
     var destroy = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
@@ -33392,16 +33478,16 @@ var ExpandableTable__initialiseProps = function _initialiseProps() {
       event.stopPropagation();
     }
 
-    var _props3 = _this2.props,
+    var _props3 = _this3.props,
         onExpandedRowsChange = _props3.onExpandedRowsChange,
         onExpand = _props3.onExpand;
 
-    var _store$getState = _this2.store.getState(),
-        expandedRowKeys = _store$getState.expandedRowKeys;
+    var _store$getState2 = _this3.store.getState(),
+        expandedRowKeys = _store$getState2.expandedRowKeys;
 
     if (expanded) {
       // row was expaned
-      expandedRowKeys = [].concat(expandedRowKeys, [rowKey]);
+      expandedRowKeys = [].concat(toConsumableArray_default()(expandedRowKeys), [rowKey]);
     } else {
       // row was collapse
       var expandedRowIndex = expandedRowKeys.indexOf(rowKey);
@@ -33410,8 +33496,8 @@ var ExpandableTable__initialiseProps = function _initialiseProps() {
       }
     }
 
-    if (!_this2.props.expandedRowKeys) {
-      _this2.store.setState({ expandedRowKeys: expandedRowKeys });
+    if (!_this3.props.expandedRowKeys) {
+      _this3.store.setState({ expandedRowKeys: expandedRowKeys });
     }
 
     onExpandedRowsChange(expandedRowKeys);
@@ -33421,7 +33507,7 @@ var ExpandableTable__initialiseProps = function _initialiseProps() {
   };
 
   this.renderExpandIndentCell = function (rows, fixed) {
-    var _props4 = _this2.props,
+    var _props4 = _this3.props,
         prefixCls = _props4.prefixCls,
         expandIconAsCell = _props4.expandIconAsCell;
 
@@ -33440,21 +33526,21 @@ var ExpandableTable__initialiseProps = function _initialiseProps() {
   };
 
   this.renderRows = function (renderRows, rows, record, index, indent, fixed, parentKey, ancestorKeys) {
-    var _props5 = _this2.props,
+    var _props5 = _this3.props,
         expandedRowClassName = _props5.expandedRowClassName,
         expandedRowRender = _props5.expandedRowRender,
         childrenColumnName = _props5.childrenColumnName;
 
     var childrenData = record[childrenColumnName];
-    var nextAncestorKeys = [].concat(ancestorKeys, [parentKey]);
+    var nextAncestorKeys = [].concat(toConsumableArray_default()(ancestorKeys), [parentKey]);
     var nextIndent = indent + 1;
 
     if (expandedRowRender) {
-      rows.push(_this2.renderExpandedRow(record, index, expandedRowRender, expandedRowClassName(record, index, indent), nextAncestorKeys, nextIndent, fixed));
+      rows.push(_this3.renderExpandedRow(record, index, expandedRowRender, expandedRowClassName(record, index, indent), nextAncestorKeys, nextIndent, fixed));
     }
 
     if (childrenData) {
-      rows.push.apply(rows, renderRows(childrenData, nextIndent, nextAncestorKeys));
+      renderRows(childrenData, nextIndent, rows, nextAncestorKeys);
     }
   };
 };
@@ -33481,28 +33567,14 @@ polyfill(ExpandableTable_ExpandableTable);
 
 
 
+
 var Table_Table = function (_React$Component) {
   inherits_default()(Table, _React$Component);
-
-  Table.getDerivedStateFromProps = function getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.columns && nextProps.columns !== prevState.columns) {
-      return {
-        columns: nextProps.columns,
-        children: null
-      };
-    } else if (nextProps.children !== prevState.children) {
-      return {
-        columns: null,
-        children: nextProps.children
-      };
-    }
-    return null;
-  };
 
   function Table(props) {
     classCallCheck_default()(this, Table);
 
-    var _this = possibleConstructorReturn_default()(this, _React$Component.call(this, props));
+    var _this = possibleConstructorReturn_default()(this, (Table.__proto__ || Object.getPrototypeOf(Table)).call(this, props));
 
     _this.state = {};
 
@@ -33532,10 +33604,13 @@ var Table_Table = function (_React$Component) {
       var fixedColumnsHeadRowsHeight = [].map.call(headRows, function (row) {
         return row.getBoundingClientRect().height || 'auto';
       });
-      var fixedColumnsBodyRowsHeight = [].map.call(bodyRows, function (row) {
-        return row.getBoundingClientRect().height || 'auto';
-      });
       var state = _this.store.getState();
+      var fixedColumnsBodyRowsHeight = [].reduce.call(bodyRows, function (acc, row) {
+        var rowKey = row.getAttribute('data-row-key');
+        var height = row.getBoundingClientRect().height || state.fixedColumnsBodyRowsHeight[rowKey] || 'auto';
+        acc[rowKey] = height;
+        return acc;
+      }, {});
       if (shallowequal_default()(state.fixedColumnsHeadRowsHeight, fixedColumnsHeadRowsHeight) && shallowequal_default()(state.fixedColumnsBodyRowsHeight, fixedColumnsBodyRowsHeight)) {
         return;
       }
@@ -33652,7 +33727,7 @@ var Table_Table = function (_React$Component) {
     _this.store = Object(mini_store_lib["create"])({
       currentHoverKey: null,
       fixedColumnsHeadRowsHeight: [],
-      fixedColumnsBodyRowsHeight: []
+      fixedColumnsBodyRowsHeight: {}
     });
 
     _this.setScrollPosition('left');
@@ -33661,282 +33736,316 @@ var Table_Table = function (_React$Component) {
     return _this;
   }
 
-  Table.prototype.getChildContext = function getChildContext() {
-    return {
-      table: {
-        props: this.props,
-        columnManager: this.columnManager,
-        saveRef: this.saveRef,
-        components: merge_default()({
-          table: 'table',
-          header: {
-            wrapper: 'thead',
-            row: 'tr',
-            cell: 'th'
-          },
-          body: {
-            wrapper: 'tbody',
-            row: 'tr',
-            cell: 'td'
-          }
-        }, this.props.components)
-      }
-    };
-  };
-
-  Table.prototype.componentDidMount = function componentDidMount() {
-    if (this.columnManager.isAnyColumnsFixed()) {
-      this.handleWindowResize();
-      this.resizeEvent = addEventListenerWrap(window, 'resize', this.debouncedWindowResize);
+  createClass_default()(Table, [{
+    key: 'getChildContext',
+    value: function getChildContext() {
+      return {
+        table: {
+          props: this.props,
+          columnManager: this.columnManager,
+          saveRef: this.saveRef,
+          components: merge_default()({
+            table: 'table',
+            header: {
+              wrapper: 'thead',
+              row: 'tr',
+              cell: 'th'
+            },
+            body: {
+              wrapper: 'tbody',
+              row: 'tr',
+              cell: 'td'
+            }
+          }, this.props.components)
+        }
+      };
     }
-  };
-
-  Table.prototype.componentDidUpdate = function componentDidUpdate(prevProps) {
-    if (this.columnManager.isAnyColumnsFixed()) {
-      this.handleWindowResize();
-      if (!this.resizeEvent) {
+  }, {
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      if (this.columnManager.isAnyColumnsFixed()) {
+        this.handleWindowResize();
         this.resizeEvent = addEventListenerWrap(window, 'resize', this.debouncedWindowResize);
       }
     }
-    // when table changes to empty, reset scrollLeft
-    if (prevProps.data.length > 0 && this.props.data.length === 0 && this.hasScrollX()) {
-      this.resetScrollX();
-    }
-  };
-
-  Table.prototype.componentWillUnmount = function componentWillUnmount() {
-    if (this.resizeEvent) {
-      this.resizeEvent.remove();
-    }
-    if (this.debouncedWindowResize) {
-      this.debouncedWindowResize.cancel();
-    }
-  };
-
-  Table.prototype.setScrollPosition = function setScrollPosition(position) {
-    this.scrollPosition = position;
-    if (this.tableNode) {
-      var prefixCls = this.props.prefixCls;
-
-      if (position === 'both') {
-        component_classes_default()(this.tableNode).remove(new RegExp('^' + prefixCls + '-scroll-position-.+$')).add(prefixCls + '-scroll-position-left').add(prefixCls + '-scroll-position-right');
-      } else {
-        component_classes_default()(this.tableNode).remove(new RegExp('^' + prefixCls + '-scroll-position-.+$')).add(prefixCls + '-scroll-position-' + position);
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate(prevProps) {
+      if (this.columnManager.isAnyColumnsFixed()) {
+        this.handleWindowResize();
+        if (!this.resizeEvent) {
+          this.resizeEvent = addEventListenerWrap(window, 'resize', this.debouncedWindowResize);
+        }
+      }
+      // when table changes to empty, reset scrollLeft
+      if (prevProps.data.length > 0 && this.props.data.length === 0 && this.hasScrollX()) {
+        this.resetScrollX();
       }
     }
-  };
-
-  Table.prototype.setScrollPositionClassName = function setScrollPositionClassName() {
-    var node = this.bodyTable;
-    var scrollToLeft = node.scrollLeft === 0;
-    var scrollToRight = node.scrollLeft + 1 >= node.children[0].getBoundingClientRect().width - node.getBoundingClientRect().width;
-    if (scrollToLeft && scrollToRight) {
-      this.setScrollPosition('both');
-    } else if (scrollToLeft) {
-      this.setScrollPosition('left');
-    } else if (scrollToRight) {
-      this.setScrollPosition('right');
-    } else if (this.scrollPosition !== 'middle') {
-      this.setScrollPosition('middle');
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      if (this.resizeEvent) {
+        this.resizeEvent.remove();
+      }
+      if (this.debouncedWindowResize) {
+        this.debouncedWindowResize.cancel();
+      }
     }
-  };
+  }, {
+    key: 'setScrollPosition',
+    value: function setScrollPosition(position) {
+      this.scrollPosition = position;
+      if (this.tableNode) {
+        var prefixCls = this.props.prefixCls;
 
-  Table.prototype.resetScrollX = function resetScrollX() {
-    if (this.headTable) {
-      this.headTable.scrollLeft = 0;
+        if (position === 'both') {
+          component_classes_default()(this.tableNode).remove(new RegExp('^' + prefixCls + '-scroll-position-.+$')).add(prefixCls + '-scroll-position-left').add(prefixCls + '-scroll-position-right');
+        } else {
+          component_classes_default()(this.tableNode).remove(new RegExp('^' + prefixCls + '-scroll-position-.+$')).add(prefixCls + '-scroll-position-' + position);
+        }
+      }
     }
-    if (this.bodyTable) {
-      this.bodyTable.scrollLeft = 0;
+  }, {
+    key: 'setScrollPositionClassName',
+    value: function setScrollPositionClassName() {
+      var node = this.bodyTable;
+      var scrollToLeft = node.scrollLeft === 0;
+      var scrollToRight = node.scrollLeft + 1 >= node.children[0].getBoundingClientRect().width - node.getBoundingClientRect().width;
+      if (scrollToLeft && scrollToRight) {
+        this.setScrollPosition('both');
+      } else if (scrollToLeft) {
+        this.setScrollPosition('left');
+      } else if (scrollToRight) {
+        this.setScrollPosition('right');
+      } else if (this.scrollPosition !== 'middle') {
+        this.setScrollPosition('middle');
+      }
     }
-  };
+  }, {
+    key: 'resetScrollX',
+    value: function resetScrollX() {
+      if (this.headTable) {
+        this.headTable.scrollLeft = 0;
+      }
+      if (this.bodyTable) {
+        this.bodyTable.scrollLeft = 0;
+      }
+    }
+  }, {
+    key: 'hasScrollX',
+    value: function hasScrollX() {
+      var _props$scroll = this.props.scroll,
+          scroll = _props$scroll === undefined ? {} : _props$scroll;
 
-  Table.prototype.hasScrollX = function hasScrollX() {
-    var _props$scroll = this.props.scroll,
-        scroll = _props$scroll === undefined ? {} : _props$scroll;
+      return 'x' in scroll;
+    }
+  }, {
+    key: 'renderMainTable',
+    value: function renderMainTable() {
+      var _props = this.props,
+          scroll = _props.scroll,
+          prefixCls = _props.prefixCls;
 
-    return 'x' in scroll;
-  };
+      var isAnyColumnsFixed = this.columnManager.isAnyColumnsFixed();
+      var scrollable = isAnyColumnsFixed || scroll.x || scroll.y;
 
-  Table.prototype.renderMainTable = function renderMainTable() {
-    var _props = this.props,
-        scroll = _props.scroll,
-        prefixCls = _props.prefixCls;
+      var table = [this.renderTable({
+        columns: this.columnManager.groupedColumns(),
+        isAnyColumnsFixed: isAnyColumnsFixed
+      }), this.renderEmptyText(), this.renderFooter()];
 
-    var isAnyColumnsFixed = this.columnManager.isAnyColumnsFixed();
-    var scrollable = isAnyColumnsFixed || scroll.x || scroll.y;
-
-    var table = [this.renderTable({
-      columns: this.columnManager.groupedColumns(),
-      isAnyColumnsFixed: isAnyColumnsFixed
-    }), this.renderEmptyText(), this.renderFooter()];
-
-    return scrollable ? react_default.a.createElement(
-      'div',
-      { className: prefixCls + '-scroll' },
-      table
-    ) : table;
-  };
-
-  Table.prototype.renderLeftFixedTable = function renderLeftFixedTable() {
-    var prefixCls = this.props.prefixCls;
-
-
-    return react_default.a.createElement(
-      'div',
-      { className: prefixCls + '-fixed-left' },
-      this.renderTable({
-        columns: this.columnManager.leftColumns(),
-        fixed: 'left'
-      })
-    );
-  };
-
-  Table.prototype.renderRightFixedTable = function renderRightFixedTable() {
-    var prefixCls = this.props.prefixCls;
+      return scrollable ? react_default.a.createElement(
+        'div',
+        { className: prefixCls + '-scroll' },
+        table
+      ) : table;
+    }
+  }, {
+    key: 'renderLeftFixedTable',
+    value: function renderLeftFixedTable() {
+      var prefixCls = this.props.prefixCls;
 
 
-    return react_default.a.createElement(
-      'div',
-      { className: prefixCls + '-fixed-right' },
-      this.renderTable({
-        columns: this.columnManager.rightColumns(),
-        fixed: 'right'
-      })
-    );
-  };
+      return react_default.a.createElement(
+        'div',
+        { className: prefixCls + '-fixed-left' },
+        this.renderTable({
+          columns: this.columnManager.leftColumns(),
+          fixed: 'left'
+        })
+      );
+    }
+  }, {
+    key: 'renderRightFixedTable',
+    value: function renderRightFixedTable() {
+      var prefixCls = this.props.prefixCls;
 
-  Table.prototype.renderTable = function renderTable(options) {
-    var columns = options.columns,
-        fixed = options.fixed,
-        isAnyColumnsFixed = options.isAnyColumnsFixed;
-    var _props2 = this.props,
-        prefixCls = _props2.prefixCls,
-        _props2$scroll = _props2.scroll,
-        scroll = _props2$scroll === undefined ? {} : _props2$scroll;
 
-    var tableClassName = scroll.x || fixed ? prefixCls + '-fixed' : '';
+      return react_default.a.createElement(
+        'div',
+        { className: prefixCls + '-fixed-right' },
+        this.renderTable({
+          columns: this.columnManager.rightColumns(),
+          fixed: 'right'
+        })
+      );
+    }
+  }, {
+    key: 'renderTable',
+    value: function renderTable(options) {
+      var columns = options.columns,
+          fixed = options.fixed,
+          isAnyColumnsFixed = options.isAnyColumnsFixed;
+      var _props2 = this.props,
+          prefixCls = _props2.prefixCls,
+          _props2$scroll = _props2.scroll,
+          scroll = _props2$scroll === undefined ? {} : _props2$scroll;
 
-    var headTable = react_default.a.createElement(HeadTable, {
-      key: 'head',
-      columns: columns,
-      fixed: fixed,
-      tableClassName: tableClassName,
-      handleBodyScrollLeft: this.handleBodyScrollLeft,
-      expander: this.expander
-    });
+      var tableClassName = scroll.x || fixed ? prefixCls + '-fixed' : '';
 
-    var bodyTable = react_default.a.createElement(BodyTable, {
-      key: 'body',
-      columns: columns,
-      fixed: fixed,
-      tableClassName: tableClassName,
-      getRowKey: this.getRowKey,
-      handleWheel: this.handleWheel,
-      handleBodyScroll: this.handleBodyScroll,
-      expander: this.expander,
-      isAnyColumnsFixed: isAnyColumnsFixed
-    });
+      var headTable = react_default.a.createElement(HeadTable, {
+        key: 'head',
+        columns: columns,
+        fixed: fixed,
+        tableClassName: tableClassName,
+        handleBodyScrollLeft: this.handleBodyScrollLeft,
+        expander: this.expander
+      });
 
-    return [headTable, bodyTable];
-  };
+      var bodyTable = react_default.a.createElement(BodyTable, {
+        key: 'body',
+        columns: columns,
+        fixed: fixed,
+        tableClassName: tableClassName,
+        getRowKey: this.getRowKey,
+        handleWheel: this.handleWheel,
+        handleBodyScroll: this.handleBodyScroll,
+        expander: this.expander,
+        isAnyColumnsFixed: isAnyColumnsFixed
+      });
 
-  Table.prototype.renderTitle = function renderTitle() {
-    var _props3 = this.props,
-        title = _props3.title,
-        prefixCls = _props3.prefixCls;
+      return [headTable, bodyTable];
+    }
+  }, {
+    key: 'renderTitle',
+    value: function renderTitle() {
+      var _props3 = this.props,
+          title = _props3.title,
+          prefixCls = _props3.prefixCls;
 
-    return title ? react_default.a.createElement(
-      'div',
-      { className: prefixCls + '-title', key: 'title' },
-      title(this.props.data)
-    ) : null;
-  };
+      return title ? react_default.a.createElement(
+        'div',
+        { className: prefixCls + '-title', key: 'title' },
+        title(this.props.data)
+      ) : null;
+    }
+  }, {
+    key: 'renderFooter',
+    value: function renderFooter() {
+      var _props4 = this.props,
+          footer = _props4.footer,
+          prefixCls = _props4.prefixCls;
 
-  Table.prototype.renderFooter = function renderFooter() {
-    var _props4 = this.props,
-        footer = _props4.footer,
-        prefixCls = _props4.prefixCls;
+      return footer ? react_default.a.createElement(
+        'div',
+        { className: prefixCls + '-footer', key: 'footer' },
+        footer(this.props.data)
+      ) : null;
+    }
+  }, {
+    key: 'renderEmptyText',
+    value: function renderEmptyText() {
+      var _props5 = this.props,
+          emptyText = _props5.emptyText,
+          prefixCls = _props5.prefixCls,
+          data = _props5.data;
 
-    return footer ? react_default.a.createElement(
-      'div',
-      { className: prefixCls + '-footer', key: 'footer' },
-      footer(this.props.data)
-    ) : null;
-  };
+      if (data.length) {
+        return null;
+      }
+      var emptyClassName = prefixCls + '-placeholder';
+      return react_default.a.createElement(
+        'div',
+        { className: emptyClassName, key: 'emptyText' },
+        typeof emptyText === 'function' ? emptyText() : emptyText
+      );
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
 
-  Table.prototype.renderEmptyText = function renderEmptyText() {
-    var _props5 = this.props,
-        emptyText = _props5.emptyText,
-        prefixCls = _props5.prefixCls,
-        data = _props5.data;
+      var props = this.props;
+      var prefixCls = props.prefixCls;
 
-    if (data.length) {
+      if (this.state.columns) {
+        this.columnManager.reset(props.columns);
+      } else if (this.state.children) {
+        this.columnManager.reset(null, props.children);
+      }
+
+      var className = props.prefixCls;
+      if (props.className) {
+        className += ' ' + props.className;
+      }
+      if (props.useFixedHeader || props.scroll && props.scroll.y) {
+        className += ' ' + prefixCls + '-fixed-header';
+      }
+      if (this.scrollPosition === 'both') {
+        className += ' ' + prefixCls + '-scroll-position-left ' + prefixCls + '-scroll-position-right';
+      } else {
+        className += ' ' + prefixCls + '-scroll-position-' + this.scrollPosition;
+      }
+      var hasLeftFixed = this.columnManager.isAnyColumnsLeftFixed();
+      var hasRightFixed = this.columnManager.isAnyColumnsRightFixed();
+
+      return react_default.a.createElement(
+        mini_store_lib["Provider"],
+        { store: this.store },
+        react_default.a.createElement(
+          es_ExpandableTable,
+          extends_default()({}, props, { columnManager: this.columnManager, getRowKey: this.getRowKey }),
+          function (expander) {
+            _this2.expander = expander;
+            return react_default.a.createElement(
+              'div',
+              {
+                ref: _this2.saveRef('tableNode'),
+                className: className,
+                style: props.style,
+                id: props.id
+              },
+              _this2.renderTitle(),
+              react_default.a.createElement(
+                'div',
+                { className: prefixCls + '-content' },
+                _this2.renderMainTable(),
+                hasLeftFixed && _this2.renderLeftFixedTable(),
+                hasRightFixed && _this2.renderRightFixedTable()
+              )
+            );
+          }
+        )
+      );
+    }
+  }], [{
+    key: 'getDerivedStateFromProps',
+    value: function getDerivedStateFromProps(nextProps, prevState) {
+      if (nextProps.columns && nextProps.columns !== prevState.columns) {
+        return {
+          columns: nextProps.columns,
+          children: null
+        };
+      } else if (nextProps.children !== prevState.children) {
+        return {
+          columns: null,
+          children: nextProps.children
+        };
+      }
       return null;
     }
-    var emptyClassName = prefixCls + '-placeholder';
-    return react_default.a.createElement(
-      'div',
-      { className: emptyClassName, key: 'emptyText' },
-      typeof emptyText === 'function' ? emptyText() : emptyText
-    );
-  };
-
-  Table.prototype.render = function render() {
-    var _this2 = this;
-
-    var props = this.props;
-    var prefixCls = props.prefixCls;
-
-    if (this.state.columns) {
-      this.columnManager.reset(props.columns);
-    } else if (this.state.children) {
-      this.columnManager.reset(null, props.children);
-    }
-
-    var className = props.prefixCls;
-    if (props.className) {
-      className += ' ' + props.className;
-    }
-    if (props.useFixedHeader || props.scroll && props.scroll.y) {
-      className += ' ' + prefixCls + '-fixed-header';
-    }
-    if (this.scrollPosition === 'both') {
-      className += ' ' + prefixCls + '-scroll-position-left ' + prefixCls + '-scroll-position-right';
-    } else {
-      className += ' ' + prefixCls + '-scroll-position-' + this.scrollPosition;
-    }
-    var hasLeftFixed = this.columnManager.isAnyColumnsLeftFixed();
-    var hasRightFixed = this.columnManager.isAnyColumnsRightFixed();
-
-    return react_default.a.createElement(
-      mini_store_lib["Provider"],
-      { store: this.store },
-      react_default.a.createElement(
-        es_ExpandableTable,
-        extends_default()({}, props, { columnManager: this.columnManager, getRowKey: this.getRowKey }),
-        function (expander) {
-          _this2.expander = expander;
-          return react_default.a.createElement(
-            'div',
-            {
-              ref: _this2.saveRef('tableNode'),
-              className: className,
-              style: props.style,
-              id: props.id
-            },
-            _this2.renderTitle(),
-            react_default.a.createElement(
-              'div',
-              { className: prefixCls + '-content' },
-              _this2.renderMainTable(),
-              hasLeftFixed && _this2.renderLeftFixedTable(),
-              hasRightFixed && _this2.renderRightFixedTable()
-            )
-          );
-        }
-      )
-    );
-  };
+  }]);
 
   return Table;
 }(react_default.a.Component);
@@ -34043,16 +34152,16 @@ var ColumnGroup_ColumnGroup = function (_Component) {
   function ColumnGroup() {
     classCallCheck_default()(this, ColumnGroup);
 
-    return possibleConstructorReturn_default()(this, _Component.apply(this, arguments));
+    return possibleConstructorReturn_default()(this, (ColumnGroup.__proto__ || Object.getPrototypeOf(ColumnGroup)).apply(this, arguments));
   }
 
   return ColumnGroup;
 }(react["Component"]);
 
+ColumnGroup_ColumnGroup.isTableColumnGroup = true;
 ColumnGroup_ColumnGroup.propTypes = {
   title: prop_types_default.a.node
 };
-ColumnGroup_ColumnGroup.isTableColumnGroup = true;
 /* harmony default export */ var es_ColumnGroup = (ColumnGroup_ColumnGroup);
 // CONCATENATED MODULE: ../node_modules/rc-table/es/index.js
 
@@ -35025,18 +35134,672 @@ function loopMenuItemRecursively(children, keys, ret) {
   });
 }
 
-var menuAllProps = ['defaultSelectedKeys', 'selectedKeys', 'defaultOpenKeys', 'openKeys', 'mode', 'getPopupContainer', 'onSelect', 'onDeselect', 'onDestroy', 'openTransitionName', 'openAnimation', 'subMenuOpenDelay', 'subMenuCloseDelay', 'forceSubMenuRender', 'triggerSubMenuAction', 'level', 'selectable', 'multiple', 'onOpenChange', 'visible', 'focusable', 'defaultActiveFirst', 'prefixCls', 'inlineIndent', 'parentMenu', 'title', 'rootPrefixCls', 'eventKey', 'active', 'onItemHover', 'onTitleMouseEnter', 'onTitleMouseLeave', 'onTitleClick', 'popupAlign', 'popupOffset', 'isOpen', 'renderMenuItem', 'manualRef', 'subMenuKey', 'disabled', 'index', 'isSelected', 'store', 'activeKey', 'builtinPlacements', 'overflowedIndicator',
+var menuAllProps = ['defaultSelectedKeys', 'selectedKeys', 'defaultOpenKeys', 'openKeys', 'mode', 'getPopupContainer', 'onSelect', 'onDeselect', 'onDestroy', 'openTransitionName', 'openAnimation', 'subMenuOpenDelay', 'subMenuCloseDelay', 'forceSubMenuRender', 'triggerSubMenuAction', 'level', 'selectable', 'multiple', 'onOpenChange', 'visible', 'focusable', 'defaultActiveFirst', 'prefixCls', 'inlineIndent', 'parentMenu', 'title', 'rootPrefixCls', 'eventKey', 'active', 'onItemHover', 'onTitleMouseEnter', 'onTitleMouseLeave', 'onTitleClick', 'popupAlign', 'popupOffset', 'isOpen', 'renderMenuItem', 'manualRef', 'subMenuKey', 'disabled', 'index', 'isSelected', 'store', 'activeKey', 'builtinPlacements',
 
 // the following keys found need to be removed from test regression
 'attribute', 'value', 'popupClassName', 'inlineCollapsed', 'menu', 'theme'];
+// CONCATENATED MODULE: ../node_modules/rc-select/node_modules/rc-menu/es/DOMWrap.js
 
-var getWidth = function getWidth(elem) {
-  return elem.getBoundingClientRect().width;
+
+
+
+
+
+
+var DOMWrap_DOMWrap = function (_React$Component) {
+  inherits_default()(DOMWrap, _React$Component);
+
+  function DOMWrap() {
+    classCallCheck_default()(this, DOMWrap);
+
+    return possibleConstructorReturn_default()(this, _React$Component.apply(this, arguments));
+  }
+
+  DOMWrap.prototype.render = function render() {
+    var props = extends_default()({}, this.props);
+    if (!props.visible) {
+      props.className += ' ' + props.hiddenClassName;
+    }
+    var Tag = props.tag;
+    delete props.tag;
+    delete props.hiddenClassName;
+    delete props.visible;
+    return react_default.a.createElement(Tag, props);
+  };
+
+  return DOMWrap;
+}(react_default.a.Component);
+
+DOMWrap_DOMWrap.propTypes = {
+  tag: prop_types_default.a.string,
+  hiddenClassName: prop_types_default.a.string,
+  visible: prop_types_default.a.bool
+};
+DOMWrap_DOMWrap.defaultProps = {
+  tag: 'div',
+  className: ''
+};
+/* harmony default export */ var es_DOMWrap = (DOMWrap_DOMWrap);
+// CONCATENATED MODULE: ../node_modules/rc-select/node_modules/rc-menu/es/SubPopupMenu.js
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function allDisabled(arr) {
+  if (!arr.length) {
+    return true;
+  }
+  return arr.every(function (c) {
+    return !!c.props.disabled;
+  });
+}
+
+function updateActiveKey(store, menuId, activeKey) {
+  var _extends2;
+
+  var state = store.getState();
+  store.setState({
+    activeKey: extends_default()({}, state.activeKey, (_extends2 = {}, _extends2[menuId] = activeKey, _extends2))
+  });
+}
+
+function getEventKey(props) {
+  // when eventKey not available ,it's menu and return menu id '0-menu-'
+  return props.eventKey || '0-menu-';
+}
+
+function SubPopupMenu_getActiveKey(props, originalActiveKey) {
+  var activeKey = originalActiveKey;
+  var children = props.children,
+      eventKey = props.eventKey;
+
+  if (activeKey) {
+    var found = void 0;
+    loopMenuItem(children, function (c, i) {
+      if (c && !c.props.disabled && activeKey === getKeyFromChildrenIndex(c, eventKey, i)) {
+        found = true;
+      }
+    });
+    if (found) {
+      return activeKey;
+    }
+  }
+  activeKey = null;
+  if (props.defaultActiveFirst) {
+    loopMenuItem(children, function (c, i) {
+      if (!activeKey && c && !c.props.disabled) {
+        activeKey = getKeyFromChildrenIndex(c, eventKey, i);
+      }
+    });
+    return activeKey;
+  }
+  return activeKey;
+}
+
+function SubPopupMenu_saveRef(c) {
+  if (c) {
+    var index = this.instanceArray.indexOf(c);
+    if (index !== -1) {
+      // update component if it's already inside instanceArray
+      this.instanceArray[index] = c;
+    } else {
+      // add component if it's not in instanceArray yet;
+      this.instanceArray.push(c);
+    }
+  }
+}
+
+var SubPopupMenu_SubPopupMenu = function (_React$Component) {
+  inherits_default()(SubPopupMenu, _React$Component);
+
+  function SubPopupMenu(props) {
+    var _extends3;
+
+    classCallCheck_default()(this, SubPopupMenu);
+
+    var _this = possibleConstructorReturn_default()(this, _React$Component.call(this, props));
+
+    SubPopupMenu__initialiseProps.call(_this);
+
+    props.store.setState({
+      activeKey: extends_default()({}, props.store.getState().activeKey, (_extends3 = {}, _extends3[props.eventKey] = SubPopupMenu_getActiveKey(props, props.activeKey), _extends3))
+    });
+
+    _this.instanceArray = [];
+    return _this;
+  }
+
+  SubPopupMenu.prototype.componentDidMount = function componentDidMount() {
+    // invoke customized ref to expose component to mixin
+    if (this.props.manualRef) {
+      this.props.manualRef(this);
+    }
+  };
+
+  SubPopupMenu.prototype.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
+    return this.props.visible || nextProps.visible;
+  };
+
+  SubPopupMenu.prototype.componentDidUpdate = function componentDidUpdate() {
+    var props = this.props;
+    var originalActiveKey = 'activeKey' in props ? props.activeKey : props.store.getState().activeKey[getEventKey(props)];
+    var activeKey = SubPopupMenu_getActiveKey(props, originalActiveKey);
+    if (activeKey !== originalActiveKey) {
+      updateActiveKey(props.store, getEventKey(props), activeKey);
+    }
+  };
+
+  // all keyboard events callbacks run from here at first
+
+
+  SubPopupMenu.prototype.render = function render() {
+    var _this2 = this;
+
+    var props = objectWithoutProperties_default()(this.props, []);
+
+    this.instanceArray = [];
+    var className = classnames_default()(props.prefixCls, props.className, props.prefixCls + '-' + props.mode);
+    var domProps = {
+      className: className,
+      // role could be 'select' and by default set to menu
+      role: props.role || 'menu'
+    };
+    if (props.id) {
+      domProps.id = props.id;
+    }
+    if (props.focusable) {
+      domProps.tabIndex = '0';
+      domProps.onKeyDown = this.onKeyDown;
+    }
+    var prefixCls = props.prefixCls,
+        eventKey = props.eventKey,
+        visible = props.visible;
+
+    menuAllProps.forEach(function (key) {
+      return delete props[key];
+    });
+
+    // Otherwise, the propagated click event will trigger another onClick
+    delete props.onClick;
+    return (
+      // ESLint is not smart enough to know that the type of `children` was checked.
+      /* eslint-disable */
+      react_default.a.createElement(
+        es_DOMWrap,
+        extends_default()({}, props, {
+          tag: 'ul',
+          hiddenClassName: prefixCls + '-hidden',
+          visible: visible
+        }, domProps),
+        react_default.a.Children.map(props.children, function (c, i) {
+          return _this2.renderMenuItem(c, i, eventKey || '0-menu-');
+        })
+      )
+      /*eslint-enable */
+
+    );
+  };
+
+  return SubPopupMenu;
+}(react_default.a.Component);
+
+SubPopupMenu_SubPopupMenu.propTypes = {
+  onSelect: prop_types_default.a.func,
+  onClick: prop_types_default.a.func,
+  onDeselect: prop_types_default.a.func,
+  onOpenChange: prop_types_default.a.func,
+  onDestroy: prop_types_default.a.func,
+  openTransitionName: prop_types_default.a.string,
+  openAnimation: prop_types_default.a.oneOfType([prop_types_default.a.string, prop_types_default.a.object]),
+  openKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
+  visible: prop_types_default.a.bool,
+  children: prop_types_default.a.any,
+  parentMenu: prop_types_default.a.object,
+  eventKey: prop_types_default.a.string,
+  store: prop_types_default.a.shape({
+    getState: prop_types_default.a.func,
+    setState: prop_types_default.a.func
+  }),
+
+  // adding in refactor
+  focusable: prop_types_default.a.bool,
+  multiple: prop_types_default.a.bool,
+  style: prop_types_default.a.object,
+  defaultActiveFirst: prop_types_default.a.bool,
+  activeKey: prop_types_default.a.string,
+  selectedKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
+  defaultSelectedKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
+  defaultOpenKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
+  level: prop_types_default.a.number,
+  mode: prop_types_default.a.oneOf(['horizontal', 'vertical', 'vertical-left', 'vertical-right', 'inline']),
+  triggerSubMenuAction: prop_types_default.a.oneOf(['click', 'hover']),
+  inlineIndent: prop_types_default.a.oneOfType([prop_types_default.a.number, prop_types_default.a.string]),
+  manualRef: prop_types_default.a.func
+};
+SubPopupMenu_SubPopupMenu.defaultProps = {
+  prefixCls: 'rc-menu',
+  className: '',
+  mode: 'vertical',
+  level: 1,
+  inlineIndent: 24,
+  visible: true,
+  focusable: true,
+  style: {},
+  manualRef: util_noop
 };
 
-var getScrollWidth = function getScrollWidth(elem) {
-  return elem.scrollWidth;
+var SubPopupMenu__initialiseProps = function _initialiseProps() {
+  var _this3 = this;
+
+  this.onKeyDown = function (e, callback) {
+    var keyCode = e.keyCode;
+    var handled = void 0;
+    _this3.getFlatInstanceArray().forEach(function (obj) {
+      if (obj && obj.props.active && obj.onKeyDown) {
+        handled = obj.onKeyDown(e);
+      }
+    });
+    if (handled) {
+      return 1;
+    }
+    var activeItem = null;
+    if (keyCode === es_KeyCode.UP || keyCode === es_KeyCode.DOWN) {
+      activeItem = _this3.step(keyCode === es_KeyCode.UP ? -1 : 1);
+    }
+    if (activeItem) {
+      e.preventDefault();
+      updateActiveKey(_this3.props.store, getEventKey(_this3.props), activeItem.props.eventKey);
+
+      if (typeof callback === 'function') {
+        callback(activeItem);
+      }
+
+      return 1;
+    }
+  };
+
+  this.onItemHover = function (e) {
+    var key = e.key,
+        hover = e.hover;
+
+    updateActiveKey(_this3.props.store, getEventKey(_this3.props), hover ? key : null);
+  };
+
+  this.onDeselect = function (selectInfo) {
+    _this3.props.onDeselect(selectInfo);
+  };
+
+  this.onSelect = function (selectInfo) {
+    _this3.props.onSelect(selectInfo);
+  };
+
+  this.onClick = function (e) {
+    _this3.props.onClick(e);
+  };
+
+  this.onOpenChange = function (e) {
+    _this3.props.onOpenChange(e);
+  };
+
+  this.onDestroy = function (key) {
+    /* istanbul ignore next */
+    _this3.props.onDestroy(key);
+  };
+
+  this.getFlatInstanceArray = function () {
+    return _this3.instanceArray;
+  };
+
+  this.getOpenTransitionName = function () {
+    return _this3.props.openTransitionName;
+  };
+
+  this.step = function (direction) {
+    var children = _this3.getFlatInstanceArray();
+    var activeKey = _this3.props.store.getState().activeKey[getEventKey(_this3.props)];
+    var len = children.length;
+    if (!len) {
+      return null;
+    }
+    if (direction < 0) {
+      children = children.concat().reverse();
+    }
+    // find current activeIndex
+    var activeIndex = -1;
+    children.every(function (c, ci) {
+      if (c && c.props.eventKey === activeKey) {
+        activeIndex = ci;
+        return false;
+      }
+      return true;
+    });
+    if (!_this3.props.defaultActiveFirst && activeIndex !== -1 && allDisabled(children.slice(activeIndex, len - 1))) {
+      return undefined;
+    }
+    var start = (activeIndex + 1) % len;
+    var i = start;
+
+    do {
+      var child = children[i];
+      if (!child || child.props.disabled) {
+        i = (i + 1) % len;
+      } else {
+        return child;
+      }
+    } while (i !== start);
+
+    return null;
+  };
+
+  this.renderCommonMenuItem = function (child, i, extraProps) {
+    var state = _this3.props.store.getState();
+    var props = _this3.props;
+    var key = getKeyFromChildrenIndex(child, props.eventKey, i);
+    var childProps = child.props;
+    var isActive = key === state.activeKey;
+    var newChildProps = extends_default()({
+      mode: props.mode,
+      level: props.level,
+      inlineIndent: props.inlineIndent,
+      renderMenuItem: _this3.renderMenuItem,
+      rootPrefixCls: props.prefixCls,
+      index: i,
+      parentMenu: props.parentMenu,
+      // customized ref function, need to be invoked manually in child's componentDidMount
+      manualRef: childProps.disabled ? undefined : createChainedFunction(child.ref, SubPopupMenu_saveRef.bind(_this3)),
+      eventKey: key,
+      active: !childProps.disabled && isActive,
+      multiple: props.multiple,
+      onClick: function onClick(e) {
+        (childProps.onClick || util_noop)(e);
+        _this3.onClick(e);
+      },
+      onItemHover: _this3.onItemHover,
+      openTransitionName: _this3.getOpenTransitionName(),
+      openAnimation: props.openAnimation,
+      subMenuOpenDelay: props.subMenuOpenDelay,
+      subMenuCloseDelay: props.subMenuCloseDelay,
+      forceSubMenuRender: props.forceSubMenuRender,
+      onOpenChange: _this3.onOpenChange,
+      onDeselect: _this3.onDeselect,
+      onSelect: _this3.onSelect,
+      builtinPlacements: props.builtinPlacements
+    }, extraProps);
+    if (props.mode === 'inline') {
+      newChildProps.triggerSubMenuAction = 'click';
+    }
+    return react_default.a.cloneElement(child, newChildProps);
+  };
+
+  this.renderMenuItem = function (c, i, subMenuKey) {
+    /* istanbul ignore if */
+    if (!c) {
+      return null;
+    }
+    var state = _this3.props.store.getState();
+    var extraProps = {
+      openKeys: state.openKeys,
+      selectedKeys: state.selectedKeys,
+      triggerSubMenuAction: _this3.props.triggerSubMenuAction,
+      subMenuKey: subMenuKey
+    };
+    return _this3.renderCommonMenuItem(c, i, extraProps);
+  };
 };
+
+/* harmony default export */ var es_SubPopupMenu = (Object(mini_store_lib["connect"])()(SubPopupMenu_SubPopupMenu));
+// CONCATENATED MODULE: ../node_modules/rc-select/node_modules/rc-menu/es/Menu.js
+
+
+
+
+
+
+
+
+
+
+
+var Menu_Menu = function (_React$Component) {
+  inherits_default()(Menu, _React$Component);
+
+  function Menu(props) {
+    classCallCheck_default()(this, Menu);
+
+    var _this = possibleConstructorReturn_default()(this, _React$Component.call(this, props));
+
+    Menu__initialiseProps.call(_this);
+
+    _this.isRootMenu = true;
+
+    var selectedKeys = props.defaultSelectedKeys;
+    var openKeys = props.defaultOpenKeys;
+    if ('selectedKeys' in props) {
+      selectedKeys = props.selectedKeys || [];
+    }
+    if ('openKeys' in props) {
+      openKeys = props.openKeys || [];
+    }
+
+    _this.store = Object(mini_store_lib["create"])({
+      selectedKeys: selectedKeys,
+      openKeys: openKeys,
+      activeKey: { '0-menu-': SubPopupMenu_getActiveKey(props, props.activeKey) }
+    });
+    return _this;
+  }
+
+  Menu.prototype.componentDidMount = function componentDidMount() {
+    this.updateMiniStore();
+  };
+
+  Menu.prototype.componentDidUpdate = function componentDidUpdate() {
+    this.updateMiniStore();
+  };
+
+  // onKeyDown needs to be exposed as a instance method
+  // e.g., in rc-select, we need to navigate menu item while
+  // current active item is rc-select input box rather than the menu itself
+
+
+  Menu.prototype.updateMiniStore = function updateMiniStore() {
+    if ('selectedKeys' in this.props) {
+      this.store.setState({
+        selectedKeys: this.props.selectedKeys || []
+      });
+    }
+    if ('openKeys' in this.props) {
+      this.store.setState({
+        openKeys: this.props.openKeys || []
+      });
+    }
+  };
+
+  Menu.prototype.render = function render() {
+    var _this2 = this;
+
+    var props = objectWithoutProperties_default()(this.props, []);
+
+    props.className += ' ' + props.prefixCls + '-root';
+    props = extends_default()({}, props, {
+      onClick: this.onClick,
+      onOpenChange: this.onOpenChange,
+      onDeselect: this.onDeselect,
+      onSelect: this.onSelect,
+      openTransitionName: this.getOpenTransitionName(),
+      parentMenu: this
+    });
+    return react_default.a.createElement(
+      mini_store_lib["Provider"],
+      { store: this.store },
+      react_default.a.createElement(
+        es_SubPopupMenu,
+        extends_default()({}, props, { ref: function ref(c) {
+            return _this2.innerMenu = c;
+          } }),
+        this.props.children
+      )
+    );
+  };
+
+  return Menu;
+}(react_default.a.Component);
+
+Menu_Menu.propTypes = {
+  defaultSelectedKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
+  defaultActiveFirst: prop_types_default.a.bool,
+  selectedKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
+  defaultOpenKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
+  openKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
+  mode: prop_types_default.a.oneOf(['horizontal', 'vertical', 'vertical-left', 'vertical-right', 'inline']),
+  getPopupContainer: prop_types_default.a.func,
+  onClick: prop_types_default.a.func,
+  onSelect: prop_types_default.a.func,
+  onDeselect: prop_types_default.a.func,
+  onDestroy: prop_types_default.a.func,
+  openTransitionName: prop_types_default.a.string,
+  openAnimation: prop_types_default.a.oneOfType([prop_types_default.a.string, prop_types_default.a.object]),
+  subMenuOpenDelay: prop_types_default.a.number,
+  subMenuCloseDelay: prop_types_default.a.number,
+  forceSubMenuRender: prop_types_default.a.bool,
+  triggerSubMenuAction: prop_types_default.a.string,
+  level: prop_types_default.a.number,
+  selectable: prop_types_default.a.bool,
+  multiple: prop_types_default.a.bool,
+  children: prop_types_default.a.any,
+  className: prop_types_default.a.string,
+  style: prop_types_default.a.object,
+  activeKey: prop_types_default.a.string,
+  prefixCls: prop_types_default.a.string,
+  builtinPlacements: prop_types_default.a.object
+};
+Menu_Menu.defaultProps = {
+  selectable: true,
+  onClick: util_noop,
+  onSelect: util_noop,
+  onOpenChange: util_noop,
+  onDeselect: util_noop,
+  defaultSelectedKeys: [],
+  defaultOpenKeys: [],
+  subMenuOpenDelay: 0.1,
+  subMenuCloseDelay: 0.1,
+  triggerSubMenuAction: 'hover',
+  prefixCls: 'rc-menu',
+  className: '',
+  mode: 'vertical',
+  style: {},
+  builtinPlacements: {}
+};
+
+var Menu__initialiseProps = function _initialiseProps() {
+  var _this3 = this;
+
+  this.onSelect = function (selectInfo) {
+    var props = _this3.props;
+    if (props.selectable) {
+      // root menu
+      var selectedKeys = _this3.store.getState().selectedKeys;
+      var selectedKey = selectInfo.key;
+      if (props.multiple) {
+        selectedKeys = selectedKeys.concat([selectedKey]);
+      } else {
+        selectedKeys = [selectedKey];
+      }
+      if (!('selectedKeys' in props)) {
+        _this3.store.setState({
+          selectedKeys: selectedKeys
+        });
+      }
+      props.onSelect(extends_default()({}, selectInfo, {
+        selectedKeys: selectedKeys
+      }));
+    }
+  };
+
+  this.onClick = function (e) {
+    _this3.props.onClick(e);
+  };
+
+  this.onKeyDown = function (e, callback) {
+    _this3.innerMenu.getWrappedInstance().onKeyDown(e, callback);
+  };
+
+  this.onOpenChange = function (event) {
+    var props = _this3.props;
+    var openKeys = _this3.store.getState().openKeys.concat();
+    var changed = false;
+    var processSingle = function processSingle(e) {
+      var oneChanged = false;
+      if (e.open) {
+        oneChanged = openKeys.indexOf(e.key) === -1;
+        if (oneChanged) {
+          openKeys.push(e.key);
+        }
+      } else {
+        var index = openKeys.indexOf(e.key);
+        oneChanged = index !== -1;
+        if (oneChanged) {
+          openKeys.splice(index, 1);
+        }
+      }
+      changed = changed || oneChanged;
+    };
+    if (Array.isArray(event)) {
+      // batch change call
+      event.forEach(processSingle);
+    } else {
+      processSingle(event);
+    }
+    if (changed) {
+      if (!('openKeys' in _this3.props)) {
+        _this3.store.setState({ openKeys: openKeys });
+      }
+      props.onOpenChange(openKeys);
+    }
+  };
+
+  this.onDeselect = function (selectInfo) {
+    var props = _this3.props;
+    if (props.selectable) {
+      var selectedKeys = _this3.store.getState().selectedKeys.concat();
+      var selectedKey = selectInfo.key;
+      var index = selectedKeys.indexOf(selectedKey);
+      if (index !== -1) {
+        selectedKeys.splice(index, 1);
+      }
+      if (!('selectedKeys' in props)) {
+        _this3.store.setState({
+          selectedKeys: selectedKeys
+        });
+      }
+      props.onDeselect(extends_default()({}, selectInfo, {
+        selectedKeys: selectedKeys
+      }));
+    }
+  };
+
+  this.getOpenTransitionName = function () {
+    var props = _this3.props;
+    var transitionName = props.openTransitionName;
+    var animationName = props.openAnimation;
+    if (!transitionName && typeof animationName === 'string') {
+      transitionName = props.prefixCls + '-open-' + animationName;
+    }
+    return transitionName;
+  };
+};
+
+/* harmony default export */ var es_Menu = (Menu_Menu);
 // CONCATENATED MODULE: ../node_modules/dom-align/es/propertyUtils.js
 var vendorPrefix = void 0;
 
@@ -38278,903 +39041,6 @@ var connected = Object(mini_store_lib["connect"])(function (_ref, _ref2) {
 connected.isSubMenu = true;
 
 /* harmony default export */ var es_SubMenu = (connected);
-// CONCATENATED MODULE: ../node_modules/rc-select/node_modules/rc-menu/es/DOMWrap.js
-
-
-
-
-
-
-
-
-
-
-
-
-
-var DOMWrap_DOMWrap = function (_React$Component) {
-  inherits_default()(DOMWrap, _React$Component);
-
-  function DOMWrap() {
-    var _temp, _this, _ret;
-
-    classCallCheck_default()(this, DOMWrap);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = possibleConstructorReturn_default()(this, _React$Component.call.apply(_React$Component, [this].concat(args))), _this), _this.state = {
-      lastVisibleIndex: undefined
-    }, _this.getOverflowedSubMenuItem = function () {
-      var overflowedIndicator = _this.props.overflowedIndicator;
-      // put all the overflowed item inside a submenu
-      // with a title of overflow indicator ('...')
-
-      var copy = _this.props.children[0];
-
-      var _copy$props = copy.props,
-          throwAway = _copy$props.children,
-          title = _copy$props.title,
-          eventKey = _copy$props.eventKey,
-          rest = objectWithoutProperties_default()(_copy$props, ['children', 'title', 'eventKey']);
-
-      return react_default.a.createElement(
-        es_SubMenu,
-        extends_default()({
-          title: overflowedIndicator,
-          className: _this.props.prefixCls + '-overflowed-submenu'
-        }, rest, {
-          eventKey: 'overflowed-indicator',
-          disabled: false
-        }),
-        _this.overflowedItems
-      );
-    }, _this.originalScrollWidth = 0, _this.overflowedItems = [], _this.childrenSizes = [], _this.handleResize = function () {
-      if (_this.props.mode !== 'horizontal') {
-        return;
-      }
-
-      var ul = react_dom_default.a.findDOMNode(_this);
-      var width = getWidth(ul);
-
-      _this.overflowedItems = [];
-      var currentSumWidth = 0;
-      var children = _this.props.children;
-
-      // index for last visible child in horizontal mode
-      var lastVisibleIndex = undefined;
-
-      if (_this.originalScrollWidth > width) {
-        lastVisibleIndex = -1;
-
-        _this.childrenSizes.forEach(function (liWidth) {
-          currentSumWidth += liWidth;
-          if (currentSumWidth + _this.overflowedIndicatorWidth <= width) {
-            lastVisibleIndex++;
-          }
-        });
-
-        children.slice(lastVisibleIndex + 1).forEach(function (c) {
-          // children[index].key will become '.$key' in clone by default,
-          // we have to overwrite with the correct key explicitly
-          _this.overflowedItems.push(react_default.a.cloneElement(c, { key: c.props.eventKey, mode: 'vertical-left' }));
-        });
-      }
-
-      _this.setState({ lastVisibleIndex: lastVisibleIndex });
-    }, _this.debouncedHandleResize = debounce_default()(_this.handleResize, 150), _temp), possibleConstructorReturn_default()(_this, _ret);
-  }
-
-  DOMWrap.prototype.componentDidMount = function componentDidMount() {
-    this.updateNodesCacheAndResize();
-    window.addEventListener('resize', this.debouncedHandleResize, { passive: true });
-  };
-
-  DOMWrap.prototype.componentDidUpdate = function componentDidUpdate(prevProps) {
-    if (prevProps.children !== this.props.children || prevProps.overflowedIndicator !== this.props.overflowedIndicator) {
-      this.updateNodesCacheAndResize();
-    }
-  };
-
-  DOMWrap.prototype.componentWillUnmount = function componentWillUnmount() {
-    this.debouncedHandleResize.cancel();
-    window.removeEventListener('resize', this.debouncedHandleResize);
-  };
-
-  // set overflow indicator size
-  DOMWrap.prototype.setOverflowedIndicatorSize = function setOverflowedIndicatorSize() {
-    var _this2 = this;
-
-    if (this.props.mode !== 'horizontal') {
-      return;
-    }
-    var container = document.body.appendChild(document.createElement('div'));
-    container.setAttribute('style', 'position: absolute; top: 0; visibility: hidden');
-    react_dom_default.a.render(this.props.overflowedIndicator, container, function () {
-      _this2.overflowedIndicatorWidth = getWidth(container) + 40;
-
-      react_dom_default.a.unmountComponentAtNode(container);
-      document.body.removeChild(container);
-    });
-  };
-
-  // memorize rendered menuSize
-
-
-  DOMWrap.prototype.setChildrenSize = function setChildrenSize() {
-    var _this3 = this;
-
-    if (this.props.mode !== 'horizontal') {
-      return;
-    }
-    var container = document.body.appendChild(document.createElement('div'));
-    container.setAttribute('style', 'position: absolute; top: 0; visibility: hidden');
-
-    var _props = this.props,
-        hiddenClassName = _props.hiddenClassName,
-        visible = _props.visible,
-        prefixCls = _props.prefixCls,
-        overflowedIndicator = _props.overflowedIndicator,
-        mode = _props.mode,
-        Tag = _props.tag,
-        children = _props.children,
-        rest = objectWithoutProperties_default()(_props, ['hiddenClassName', 'visible', 'prefixCls', 'overflowedIndicator', 'mode', 'tag', 'children']);
-
-    this.store = Object(mini_store_lib["create"])({
-      selectedKeys: [],
-      openKeys: [],
-      activeKey: {}
-    });
-
-    react_dom_default.a.render(react_default.a.createElement(
-      mini_store_lib["Provider"],
-      { store: this.store },
-      react_default.a.createElement(
-        Tag,
-        rest,
-        children
-      )
-    ), // content
-
-    container, // container
-
-    function () {
-      // callback
-      var ul = container.childNodes[0];
-      var scrollWidth = getScrollWidth(ul);
-
-      _this3.props.children.forEach(function (c, i) {
-        return _this3.childrenSizes[i] = getWidth(ul.children[i]);
-      });
-
-      _this3.originalScrollWidth = scrollWidth;
-
-      react_dom_default.a.unmountComponentAtNode(container);
-      document.body.removeChild(container);
-      _this3.handleResize();
-    });
-  };
-
-  DOMWrap.prototype.updateNodesCacheAndResize = function updateNodesCacheAndResize() {
-    this.setOverflowedIndicatorSize();
-    this.setChildrenSize();
-  };
-
-  // original scroll size of the list
-
-
-  // copy of overflowed items
-
-
-  // cache item of the original items (so we can track the size and order)
-
-
-  DOMWrap.prototype.renderChildren = function renderChildren(children) {
-    var _this4 = this;
-
-    // need to take care of overflowed items in horizontal mode
-    var lastVisibleIndex = this.state.lastVisibleIndex;
-
-    return react_default.a.Children.map(children, function (childNode, index) {
-      // only process the scenario when overflow actually happens and it's the root menu
-
-      if (_this4.props.mode === 'horizontal') {
-        if (lastVisibleIndex !== undefined && _this4.props.className.indexOf(_this4.props.prefixCls + '-root') !== -1) {
-          if (index <= lastVisibleIndex) {
-            // visible item, just render
-            return childNode;
-          } else if (index === lastVisibleIndex + 1) {
-            // time to use overflow indicator!
-            return _this4.getOverflowedSubMenuItem();
-          }
-
-          return null;
-        }
-      }
-
-      return childNode;
-    });
-  };
-
-  DOMWrap.prototype.render = function render() {
-    var _props2 = this.props,
-        hiddenClassName = _props2.hiddenClassName,
-        visible = _props2.visible,
-        prefixCls = _props2.prefixCls,
-        overflowedIndicator = _props2.overflowedIndicator,
-        mode = _props2.mode,
-        Tag = _props2.tag,
-        children = _props2.children,
-        rest = objectWithoutProperties_default()(_props2, ['hiddenClassName', 'visible', 'prefixCls', 'overflowedIndicator', 'mode', 'tag', 'children']);
-
-    if (!visible) {
-      rest.className += ' ' + hiddenClassName;
-    }
-
-    return react_default.a.createElement(
-      Tag,
-      rest,
-      this.renderChildren(this.props.children)
-    );
-  };
-
-  return DOMWrap;
-}(react_default.a.Component);
-
-DOMWrap_DOMWrap.propTypes = {
-  tag: prop_types_default.a.string,
-  hiddenClassName: prop_types_default.a.string,
-  visible: prop_types_default.a.bool
-};
-DOMWrap_DOMWrap.defaultProps = {
-  tag: 'div',
-  className: ''
-};
-
-
-DOMWrap_DOMWrap.propTypes = {
-  className: prop_types_default.a.string,
-  children: prop_types_default.a.node,
-  mode: prop_types_default.a.oneOf(['horizontal', 'vertical', 'vertical-left', 'vertical-right', 'inline']),
-  prefixCls: prop_types_default.a.string,
-  overflowedIndicator: prop_types_default.a.node
-};
-
-/* harmony default export */ var es_DOMWrap = (DOMWrap_DOMWrap);
-// CONCATENATED MODULE: ../node_modules/rc-select/node_modules/rc-menu/es/SubPopupMenu.js
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function allDisabled(arr) {
-  if (!arr.length) {
-    return true;
-  }
-  return arr.every(function (c) {
-    return !!c.props.disabled;
-  });
-}
-
-function updateActiveKey(store, menuId, activeKey) {
-  var _extends2;
-
-  var state = store.getState();
-  store.setState({
-    activeKey: extends_default()({}, state.activeKey, (_extends2 = {}, _extends2[menuId] = activeKey, _extends2))
-  });
-}
-
-function getEventKey(props) {
-  // when eventKey not available ,it's menu and return menu id '0-menu-'
-  return props.eventKey || '0-menu-';
-}
-
-function SubPopupMenu_getActiveKey(props, originalActiveKey) {
-  var activeKey = originalActiveKey;
-  var children = props.children,
-      eventKey = props.eventKey;
-
-  if (activeKey) {
-    var found = void 0;
-    loopMenuItem(children, function (c, i) {
-      if (c && !c.props.disabled && activeKey === getKeyFromChildrenIndex(c, eventKey, i)) {
-        found = true;
-      }
-    });
-    if (found) {
-      return activeKey;
-    }
-  }
-  activeKey = null;
-  if (props.defaultActiveFirst) {
-    loopMenuItem(children, function (c, i) {
-      if (!activeKey && c && !c.props.disabled) {
-        activeKey = getKeyFromChildrenIndex(c, eventKey, i);
-      }
-    });
-    return activeKey;
-  }
-  return activeKey;
-}
-
-function SubPopupMenu_saveRef(c) {
-  if (c) {
-    var index = this.instanceArray.indexOf(c);
-    if (index !== -1) {
-      // update component if it's already inside instanceArray
-      this.instanceArray[index] = c;
-    } else {
-      // add component if it's not in instanceArray yet;
-      this.instanceArray.push(c);
-    }
-  }
-}
-
-var SubPopupMenu_SubPopupMenu = function (_React$Component) {
-  inherits_default()(SubPopupMenu, _React$Component);
-
-  function SubPopupMenu(props) {
-    var _extends3;
-
-    classCallCheck_default()(this, SubPopupMenu);
-
-    var _this = possibleConstructorReturn_default()(this, _React$Component.call(this, props));
-
-    SubPopupMenu__initialiseProps.call(_this);
-
-    props.store.setState({
-      activeKey: extends_default()({}, props.store.getState().activeKey, (_extends3 = {}, _extends3[props.eventKey] = SubPopupMenu_getActiveKey(props, props.activeKey), _extends3))
-    });
-
-    _this.instanceArray = [];
-    return _this;
-  }
-
-  SubPopupMenu.prototype.componentDidMount = function componentDidMount() {
-    // invoke customized ref to expose component to mixin
-    if (this.props.manualRef) {
-      this.props.manualRef(this);
-    }
-  };
-
-  SubPopupMenu.prototype.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
-    return this.props.visible || nextProps.visible;
-  };
-
-  SubPopupMenu.prototype.componentDidUpdate = function componentDidUpdate() {
-    var props = this.props;
-    var originalActiveKey = 'activeKey' in props ? props.activeKey : props.store.getState().activeKey[getEventKey(props)];
-    var activeKey = SubPopupMenu_getActiveKey(props, originalActiveKey);
-    if (activeKey !== originalActiveKey) {
-      updateActiveKey(props.store, getEventKey(props), activeKey);
-    }
-  };
-
-  // all keyboard events callbacks run from here at first
-
-
-  SubPopupMenu.prototype.render = function render() {
-    var _this2 = this;
-
-    var props = objectWithoutProperties_default()(this.props, []);
-
-    this.instanceArray = [];
-    var className = classnames_default()(props.prefixCls, props.className, props.prefixCls + '-' + props.mode);
-    var domProps = {
-      className: className,
-      // role could be 'select' and by default set to menu
-      role: props.role || 'menu'
-    };
-    if (props.id) {
-      domProps.id = props.id;
-    }
-    if (props.focusable) {
-      domProps.tabIndex = '0';
-      domProps.onKeyDown = this.onKeyDown;
-    }
-
-    var prefixCls = props.prefixCls,
-        eventKey = props.eventKey,
-        visible = props.visible,
-        mode = props.mode,
-        overflowedIndicator = props.overflowedIndicator;
-
-    menuAllProps.forEach(function (key) {
-      return delete props[key];
-    });
-
-    // Otherwise, the propagated click event will trigger another onClick
-    delete props.onClick;
-    return (
-      // ESLint is not smart enough to know that the type of `children` was checked.
-      /* eslint-disable */
-      react_default.a.createElement(
-        es_DOMWrap,
-        extends_default()({}, props, {
-          prefixCls: prefixCls,
-          mode: mode,
-          tag: 'ul',
-          hiddenClassName: prefixCls + '-hidden',
-          visible: visible,
-          overflowedIndicator: overflowedIndicator
-        }, domProps),
-        react_default.a.Children.map(props.children, function (c, i) {
-          return _this2.renderMenuItem(c, i, eventKey || '0-menu-');
-        })
-      )
-      /*eslint-enable */
-
-    );
-  };
-
-  return SubPopupMenu;
-}(react_default.a.Component);
-SubPopupMenu_SubPopupMenu.propTypes = {
-  onSelect: prop_types_default.a.func,
-  onClick: prop_types_default.a.func,
-  onDeselect: prop_types_default.a.func,
-  onOpenChange: prop_types_default.a.func,
-  onDestroy: prop_types_default.a.func,
-  openTransitionName: prop_types_default.a.string,
-  openAnimation: prop_types_default.a.oneOfType([prop_types_default.a.string, prop_types_default.a.object]),
-  openKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
-  visible: prop_types_default.a.bool,
-  children: prop_types_default.a.any,
-  parentMenu: prop_types_default.a.object,
-  eventKey: prop_types_default.a.string,
-  store: prop_types_default.a.shape({
-    getState: prop_types_default.a.func,
-    setState: prop_types_default.a.func
-  }),
-
-  // adding in refactor
-  focusable: prop_types_default.a.bool,
-  multiple: prop_types_default.a.bool,
-  style: prop_types_default.a.object,
-  defaultActiveFirst: prop_types_default.a.bool,
-  activeKey: prop_types_default.a.string,
-  selectedKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
-  defaultSelectedKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
-  defaultOpenKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
-  level: prop_types_default.a.number,
-  mode: prop_types_default.a.oneOf(['horizontal', 'vertical', 'vertical-left', 'vertical-right', 'inline']),
-  triggerSubMenuAction: prop_types_default.a.oneOf(['click', 'hover']),
-  inlineIndent: prop_types_default.a.oneOfType([prop_types_default.a.number, prop_types_default.a.string]),
-  manualRef: prop_types_default.a.func
-};
-SubPopupMenu_SubPopupMenu.defaultProps = {
-  prefixCls: 'rc-menu',
-  className: '',
-  mode: 'vertical',
-  level: 1,
-  inlineIndent: 24,
-  visible: true,
-  focusable: true,
-  style: {},
-  manualRef: util_noop
-};
-
-var SubPopupMenu__initialiseProps = function _initialiseProps() {
-  var _this3 = this;
-
-  this.onKeyDown = function (e, callback) {
-    var keyCode = e.keyCode;
-    var handled = void 0;
-    _this3.getFlatInstanceArray().forEach(function (obj) {
-      if (obj && obj.props.active && obj.onKeyDown) {
-        handled = obj.onKeyDown(e);
-      }
-    });
-    if (handled) {
-      return 1;
-    }
-    var activeItem = null;
-    if (keyCode === es_KeyCode.UP || keyCode === es_KeyCode.DOWN) {
-      activeItem = _this3.step(keyCode === es_KeyCode.UP ? -1 : 1);
-    }
-    if (activeItem) {
-      e.preventDefault();
-      updateActiveKey(_this3.props.store, getEventKey(_this3.props), activeItem.props.eventKey);
-
-      if (typeof callback === 'function') {
-        callback(activeItem);
-      }
-
-      return 1;
-    }
-  };
-
-  this.onItemHover = function (e) {
-    var key = e.key,
-        hover = e.hover;
-
-    updateActiveKey(_this3.props.store, getEventKey(_this3.props), hover ? key : null);
-  };
-
-  this.onDeselect = function (selectInfo) {
-    _this3.props.onDeselect(selectInfo);
-  };
-
-  this.onSelect = function (selectInfo) {
-    _this3.props.onSelect(selectInfo);
-  };
-
-  this.onClick = function (e) {
-    _this3.props.onClick(e);
-  };
-
-  this.onOpenChange = function (e) {
-    _this3.props.onOpenChange(e);
-  };
-
-  this.onDestroy = function (key) {
-    /* istanbul ignore next */
-    _this3.props.onDestroy(key);
-  };
-
-  this.getFlatInstanceArray = function () {
-    return _this3.instanceArray;
-  };
-
-  this.getOpenTransitionName = function () {
-    return _this3.props.openTransitionName;
-  };
-
-  this.step = function (direction) {
-    var children = _this3.getFlatInstanceArray();
-    var activeKey = _this3.props.store.getState().activeKey[getEventKey(_this3.props)];
-    var len = children.length;
-    if (!len) {
-      return null;
-    }
-    if (direction < 0) {
-      children = children.concat().reverse();
-    }
-    // find current activeIndex
-    var activeIndex = -1;
-    children.every(function (c, ci) {
-      if (c && c.props.eventKey === activeKey) {
-        activeIndex = ci;
-        return false;
-      }
-      return true;
-    });
-    if (!_this3.props.defaultActiveFirst && activeIndex !== -1 && allDisabled(children.slice(activeIndex, len - 1))) {
-      return undefined;
-    }
-    var start = (activeIndex + 1) % len;
-    var i = start;
-
-    do {
-      var child = children[i];
-      if (!child || child.props.disabled) {
-        i = (i + 1) % len;
-      } else {
-        return child;
-      }
-    } while (i !== start);
-
-    return null;
-  };
-
-  this.renderCommonMenuItem = function (child, i, extraProps) {
-    var state = _this3.props.store.getState();
-    var props = _this3.props;
-    var key = getKeyFromChildrenIndex(child, props.eventKey, i);
-    var childProps = child.props;
-    var isActive = key === state.activeKey;
-    var newChildProps = extends_default()({
-      mode: childProps.mode || props.mode,
-      level: props.level,
-      inlineIndent: props.inlineIndent,
-      renderMenuItem: _this3.renderMenuItem,
-      rootPrefixCls: props.prefixCls,
-      index: i,
-      parentMenu: props.parentMenu,
-      // customized ref function, need to be invoked manually in child's componentDidMount
-      manualRef: childProps.disabled ? undefined : createChainedFunction(child.ref, SubPopupMenu_saveRef.bind(_this3)),
-      eventKey: key,
-      active: !childProps.disabled && isActive,
-      multiple: props.multiple,
-      onClick: function onClick(e) {
-        (childProps.onClick || util_noop)(e);
-        _this3.onClick(e);
-      },
-      onItemHover: _this3.onItemHover,
-      openTransitionName: _this3.getOpenTransitionName(),
-      openAnimation: props.openAnimation,
-      subMenuOpenDelay: props.subMenuOpenDelay,
-      subMenuCloseDelay: props.subMenuCloseDelay,
-      forceSubMenuRender: props.forceSubMenuRender,
-      onOpenChange: _this3.onOpenChange,
-      onDeselect: _this3.onDeselect,
-      onSelect: _this3.onSelect,
-      builtinPlacements: props.builtinPlacements
-    }, extraProps);
-    if (props.mode === 'inline') {
-      newChildProps.triggerSubMenuAction = 'click';
-    }
-    return react_default.a.cloneElement(child, newChildProps);
-  };
-
-  this.renderMenuItem = function (c, i, subMenuKey) {
-    /* istanbul ignore if */
-    if (!c) {
-      return null;
-    }
-    var state = _this3.props.store.getState();
-    var extraProps = {
-      openKeys: state.openKeys,
-      selectedKeys: state.selectedKeys,
-      triggerSubMenuAction: _this3.props.triggerSubMenuAction,
-      subMenuKey: subMenuKey
-    };
-    return _this3.renderCommonMenuItem(c, i, extraProps);
-  };
-};
-
-var SubPopupMenu_connected = Object(mini_store_lib["connect"])()(SubPopupMenu_SubPopupMenu);
-
-/* harmony default export */ var es_SubPopupMenu = (SubPopupMenu_connected);
-// CONCATENATED MODULE: ../node_modules/rc-select/node_modules/rc-menu/es/Menu.js
-
-
-
-
-
-
-
-
-
-
-
-var Menu_Menu = function (_React$Component) {
-  inherits_default()(Menu, _React$Component);
-
-  function Menu(props) {
-    classCallCheck_default()(this, Menu);
-
-    var _this = possibleConstructorReturn_default()(this, _React$Component.call(this, props));
-
-    Menu__initialiseProps.call(_this);
-
-    _this.isRootMenu = true;
-
-    var selectedKeys = props.defaultSelectedKeys;
-    var openKeys = props.defaultOpenKeys;
-    if ('selectedKeys' in props) {
-      selectedKeys = props.selectedKeys || [];
-    }
-    if ('openKeys' in props) {
-      openKeys = props.openKeys || [];
-    }
-
-    _this.store = Object(mini_store_lib["create"])({
-      selectedKeys: selectedKeys,
-      openKeys: openKeys,
-      activeKey: { '0-menu-': SubPopupMenu_getActiveKey(props, props.activeKey) }
-    });
-    return _this;
-  }
-
-  Menu.prototype.componentDidMount = function componentDidMount() {
-    this.updateMiniStore();
-  };
-
-  Menu.prototype.componentDidUpdate = function componentDidUpdate() {
-    this.updateMiniStore();
-  };
-
-  // onKeyDown needs to be exposed as a instance method
-  // e.g., in rc-select, we need to navigate menu item while
-  // current active item is rc-select input box rather than the menu itself
-
-
-  Menu.prototype.updateMiniStore = function updateMiniStore() {
-    if ('selectedKeys' in this.props) {
-      this.store.setState({
-        selectedKeys: this.props.selectedKeys || []
-      });
-    }
-    if ('openKeys' in this.props) {
-      this.store.setState({
-        openKeys: this.props.openKeys || []
-      });
-    }
-  };
-
-  Menu.prototype.render = function render() {
-    var _this2 = this;
-
-    var props = objectWithoutProperties_default()(this.props, []);
-
-    props.className += ' ' + props.prefixCls + '-root';
-    props = extends_default()({}, props, {
-      onClick: this.onClick,
-      onOpenChange: this.onOpenChange,
-      onDeselect: this.onDeselect,
-      onSelect: this.onSelect,
-      openTransitionName: this.getOpenTransitionName(),
-      parentMenu: this
-    });
-    return react_default.a.createElement(
-      mini_store_lib["Provider"],
-      { store: this.store },
-      react_default.a.createElement(
-        es_SubPopupMenu,
-        extends_default()({}, props, { ref: function ref(c) {
-            return _this2.innerMenu = c;
-          } }),
-        this.props.children
-      )
-    );
-  };
-
-  return Menu;
-}(react_default.a.Component);
-
-Menu_Menu.propTypes = {
-  defaultSelectedKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
-  defaultActiveFirst: prop_types_default.a.bool,
-  selectedKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
-  defaultOpenKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
-  openKeys: prop_types_default.a.arrayOf(prop_types_default.a.string),
-  mode: prop_types_default.a.oneOf(['horizontal', 'vertical', 'vertical-left', 'vertical-right', 'inline']),
-  getPopupContainer: prop_types_default.a.func,
-  onClick: prop_types_default.a.func,
-  onSelect: prop_types_default.a.func,
-  onDeselect: prop_types_default.a.func,
-  onDestroy: prop_types_default.a.func,
-  openTransitionName: prop_types_default.a.string,
-  openAnimation: prop_types_default.a.oneOfType([prop_types_default.a.string, prop_types_default.a.object]),
-  subMenuOpenDelay: prop_types_default.a.number,
-  subMenuCloseDelay: prop_types_default.a.number,
-  forceSubMenuRender: prop_types_default.a.bool,
-  triggerSubMenuAction: prop_types_default.a.string,
-  level: prop_types_default.a.number,
-  selectable: prop_types_default.a.bool,
-  multiple: prop_types_default.a.bool,
-  children: prop_types_default.a.any,
-  className: prop_types_default.a.string,
-  style: prop_types_default.a.object,
-  activeKey: prop_types_default.a.string,
-  prefixCls: prop_types_default.a.string,
-  builtinPlacements: prop_types_default.a.object,
-  overflowedIndicator: prop_types_default.a.node
-};
-Menu_Menu.defaultProps = {
-  selectable: true,
-  onClick: util_noop,
-  onSelect: util_noop,
-  onOpenChange: util_noop,
-  onDeselect: util_noop,
-  defaultSelectedKeys: [],
-  defaultOpenKeys: [],
-  subMenuOpenDelay: 0.1,
-  subMenuCloseDelay: 0.1,
-  triggerSubMenuAction: 'hover',
-  prefixCls: 'rc-menu',
-  className: '',
-  mode: 'vertical',
-  style: {},
-  builtinPlacements: {},
-  overflowedIndicator: react_default.a.createElement(
-    'span',
-    null,
-    '\xB7\xB7\xB7'
-  )
-};
-
-var Menu__initialiseProps = function _initialiseProps() {
-  var _this3 = this;
-
-  this.onSelect = function (selectInfo) {
-    var props = _this3.props;
-    if (props.selectable) {
-      // root menu
-      var selectedKeys = _this3.store.getState().selectedKeys;
-      var selectedKey = selectInfo.key;
-      if (props.multiple) {
-        selectedKeys = selectedKeys.concat([selectedKey]);
-      } else {
-        selectedKeys = [selectedKey];
-      }
-      if (!('selectedKeys' in props)) {
-        _this3.store.setState({
-          selectedKeys: selectedKeys
-        });
-      }
-      props.onSelect(extends_default()({}, selectInfo, {
-        selectedKeys: selectedKeys
-      }));
-    }
-  };
-
-  this.onClick = function (e) {
-    _this3.props.onClick(e);
-  };
-
-  this.onKeyDown = function (e, callback) {
-    _this3.innerMenu.getWrappedInstance().onKeyDown(e, callback);
-  };
-
-  this.onOpenChange = function (event) {
-    var props = _this3.props;
-    var openKeys = _this3.store.getState().openKeys.concat();
-    var changed = false;
-    var processSingle = function processSingle(e) {
-      var oneChanged = false;
-      if (e.open) {
-        oneChanged = openKeys.indexOf(e.key) === -1;
-        if (oneChanged) {
-          openKeys.push(e.key);
-        }
-      } else {
-        var index = openKeys.indexOf(e.key);
-        oneChanged = index !== -1;
-        if (oneChanged) {
-          openKeys.splice(index, 1);
-        }
-      }
-      changed = changed || oneChanged;
-    };
-    if (Array.isArray(event)) {
-      // batch change call
-      event.forEach(processSingle);
-    } else {
-      processSingle(event);
-    }
-    if (changed) {
-      if (!('openKeys' in _this3.props)) {
-        _this3.store.setState({ openKeys: openKeys });
-      }
-      props.onOpenChange(openKeys);
-    }
-  };
-
-  this.onDeselect = function (selectInfo) {
-    var props = _this3.props;
-    if (props.selectable) {
-      var selectedKeys = _this3.store.getState().selectedKeys.concat();
-      var selectedKey = selectInfo.key;
-      var index = selectedKeys.indexOf(selectedKey);
-      if (index !== -1) {
-        selectedKeys.splice(index, 1);
-      }
-      if (!('selectedKeys' in props)) {
-        _this3.store.setState({
-          selectedKeys: selectedKeys
-        });
-      }
-      props.onDeselect(extends_default()({}, selectInfo, {
-        selectedKeys: selectedKeys
-      }));
-    }
-  };
-
-  this.getOpenTransitionName = function () {
-    var props = _this3.props;
-    var transitionName = props.openTransitionName;
-    var animationName = props.openAnimation;
-    if (!transitionName && typeof animationName === 'string') {
-      transitionName = props.prefixCls + '-open-' + animationName;
-    }
-    return transitionName;
-  };
-};
-
-/* harmony default export */ var es_Menu = (Menu_Menu);
 // EXTERNAL MODULE: ../node_modules/dom-scroll-into-view/lib/index.js
 var dom_scroll_into_view_lib = __webpack_require__("3Dq6");
 var dom_scroll_into_view_lib_default = /*#__PURE__*/__webpack_require__.n(dom_scroll_into_view_lib);
@@ -39514,14 +39380,11 @@ var Divider_Divider = function (_React$Component) {
 
   Divider.prototype.render = function render() {
     var _props = this.props,
-        className = _props.className,
-        rootPrefixCls = _props.rootPrefixCls,
-        style = _props.style;
+        _props$className = _props.className,
+        className = _props$className === undefined ? '' : _props$className,
+        rootPrefixCls = _props.rootPrefixCls;
 
-    return react_default.a.createElement('li', {
-      className: className + ' ' + rootPrefixCls + '-item-divider',
-      style: style
-    });
+    return react_default.a.createElement('li', { className: className + ' ' + rootPrefixCls + '-item-divider' });
   };
 
   return Divider;
@@ -39529,14 +39392,11 @@ var Divider_Divider = function (_React$Component) {
 
 Divider_Divider.propTypes = {
   className: prop_types_default.a.string,
-  rootPrefixCls: prop_types_default.a.string,
-  style: prop_types_default.a.object
+  rootPrefixCls: prop_types_default.a.string
 };
 Divider_Divider.defaultProps = {
   // To fix keyboard UX.
-  disabled: true,
-  className: '',
-  style: {}
+  disabled: true
 };
 /* harmony default export */ var es_Divider = (Divider_Divider);
 // CONCATENATED MODULE: ../node_modules/rc-select/node_modules/rc-menu/es/index.js
@@ -39612,7 +39472,7 @@ function isMultiple(props) {
   return props.multiple;
 }
 
-function util_isCombobox(props) {
+function isCombobox(props) {
   return props.combobox;
 }
 
@@ -39621,7 +39481,7 @@ function isMultipleOrTags(props) {
 }
 
 function isMultipleOrTagsOrCombobox(props) {
-  return isMultipleOrTags(props) || util_isCombobox(props);
+  return isMultipleOrTags(props) || isCombobox(props);
 }
 
 function isSingleMode(props) {
@@ -40345,7 +40205,7 @@ var Select_Select = function (_React$Component) {
     if (!allowClear) {
       return null;
     }
-    if (util_isCombobox(this.props)) {
+    if (isCombobox(this.props)) {
       if (inputValue) {
         return clear;
       }
@@ -40382,7 +40242,7 @@ var Select_Select = function (_React$Component) {
         tabIndex: props.disabled ? -1 : 0
       };
     }
-    var rootCls = (_rootCls = {}, _rootCls[className] = !!className, _rootCls[prefixCls] = 1, _rootCls[prefixCls + '-open'] = open, _rootCls[prefixCls + '-focused'] = open || !!this._focused, _rootCls[prefixCls + '-combobox'] = util_isCombobox(props), _rootCls[prefixCls + '-disabled'] = disabled, _rootCls[prefixCls + '-enabled'] = !disabled, _rootCls[prefixCls + '-allow-clear'] = !!props.allowClear, _rootCls[prefixCls + '-no-arrow'] = !props.showArrow, _rootCls);
+    var rootCls = (_rootCls = {}, _rootCls[className] = !!className, _rootCls[prefixCls] = 1, _rootCls[prefixCls + '-open'] = open, _rootCls[prefixCls + '-focused'] = open || !!this._focused, _rootCls[prefixCls + '-combobox'] = isCombobox(props), _rootCls[prefixCls + '-disabled'] = disabled, _rootCls[prefixCls + '-enabled'] = !disabled, _rootCls[prefixCls + '-allow-clear'] = !!props.allowClear, _rootCls[prefixCls + '-no-arrow'] = !props.showArrow, _rootCls);
     return react_default.a.createElement(
       es_SelectTrigger,
       {
@@ -40615,7 +40475,7 @@ var Select__initialiseProps = function _initialiseProps() {
     _this2.setState({
       open: true
     });
-    if (util_isCombobox(_this2.props)) {
+    if (isCombobox(_this2.props)) {
       _this2.fireChange([val]);
     }
   };
@@ -40715,7 +40575,7 @@ var Select__initialiseProps = function _initialiseProps() {
     }
     _this2.fireChange(value);
     var inputValue = void 0;
-    if (util_isCombobox(props)) {
+    if (isCombobox(props)) {
       inputValue = getPropValue(item, props.optionLabelProp);
     } else {
       inputValue = '';
@@ -40946,7 +40806,7 @@ var Select__initialiseProps = function _initialiseProps() {
     if (state.value.length) {
       hidden = true;
     }
-    if (util_isCombobox(props) && state.value.length === 1 && !state.value[0]) {
+    if (isCombobox(props) && state.value.length === 1 && !state.value[0]) {
       hidden = false;
     }
     var placeholder = props.placeholder;
@@ -41094,13 +40954,13 @@ var Select__initialiseProps = function _initialiseProps() {
   };
 
   this.handleBackfill = function (item) {
-    if (!_this2.props.backfill || !(isSingleMode(_this2.props) || util_isCombobox(_this2.props))) {
+    if (!_this2.props.backfill || !(isSingleMode(_this2.props) || isCombobox(_this2.props))) {
       return;
     }
 
     var key = getValuePropValue(item);
 
-    if (util_isCombobox(_this2.props)) {
+    if (isCombobox(_this2.props)) {
       _this2.setInputValue(key, false);
     }
 
@@ -41615,16 +41475,17 @@ var select___rest = this && this.__rest || function (s, e) {
 
 
 
+
 var select_SelectPropTypes = {
     prefixCls: prop_types_default.a.string,
     className: prop_types_default.a.string,
     size: prop_types_default.a.oneOf(['default', 'large', 'small']),
-    combobox: prop_types_default.a.bool,
     notFoundContent: prop_types_default.a.any,
     showSearch: prop_types_default.a.bool,
     optionLabelProp: prop_types_default.a.string,
     transitionName: prop_types_default.a.string,
-    choiceTransitionName: prop_types_default.a.string
+    choiceTransitionName: prop_types_default.a.string,
+    id: prop_types_default.a.string
 };
 // => It is needless to export the declaration of below two inner components.
 // export { Option, OptGroup };
@@ -41632,10 +41493,10 @@ var select_SelectPropTypes = {
 var select_Select = function (_React$Component) {
     inherits_default()(Select, _React$Component);
 
-    function Select() {
+    function Select(props) {
         classCallCheck_default()(this, Select);
 
-        var _this = possibleConstructorReturn_default()(this, (Select.__proto__ || Object.getPrototypeOf(Select)).apply(this, arguments));
+        var _this = possibleConstructorReturn_default()(this, (Select.__proto__ || Object.getPrototypeOf(Select)).call(this, props));
 
         _this.saveSelect = function (node) {
             _this.rcSelect = node;
@@ -41653,18 +41514,18 @@ var select_Select = function (_React$Component) {
             var cls = classnames_default()((_classNames = {}, defineProperty_default()(_classNames, prefixCls + '-lg', size === 'large'), defineProperty_default()(_classNames, prefixCls + '-sm', size === 'small'), _classNames), className);
             var optionLabelProp = _this.props.optionLabelProp;
 
-            var isCombobox = mode === 'combobox';
-            if (isCombobox) {
+            if (_this.isCombobox()) {
                 // children 带 dom 结构时，无法填入输入框
                 optionLabelProp = optionLabelProp || 'value';
             }
             var modeConfig = {
                 multiple: mode === 'multiple',
                 tags: mode === 'tags',
-                combobox: isCombobox
+                combobox: _this.isCombobox()
             };
             return react["createElement"](rc_select_es, extends_default()({}, restProps, modeConfig, { prefixCls: prefixCls, className: cls, optionLabelProp: optionLabelProp || 'children', notFoundContent: _this.getNotFoundContent(locale), ref: _this.saveSelect }));
         };
+        warning_default()(props.mode !== 'combobox', 'The combobox mode of Select is deprecated,' + 'it will be removed in next major version,' + 'please use AutoComplete instead');
         return _this;
     }
 
@@ -41681,16 +41542,20 @@ var select_Select = function (_React$Component) {
     }, {
         key: 'getNotFoundContent',
         value: function getNotFoundContent(locale) {
-            var _props = this.props,
-                notFoundContent = _props.notFoundContent,
-                mode = _props.mode;
+            var notFoundContent = this.props.notFoundContent;
 
-            var isCombobox = mode === 'combobox';
-            if (isCombobox) {
+            if (this.isCombobox()) {
                 // AutoComplete don't have notFoundContent defaultly
                 return notFoundContent === undefined ? null : notFoundContent;
             }
             return notFoundContent === undefined ? locale.notFoundContent : notFoundContent;
+        }
+    }, {
+        key: 'isCombobox',
+        value: function isCombobox() {
+            var mode = this.props.mode;
+
+            return mode === 'combobox' || mode === Select.SECRET_COMBOBOX_MODE_DO_NOT_USE;
         }
     }, {
         key: 'render',
@@ -41710,6 +41575,7 @@ var select_Select = function (_React$Component) {
 
 select_Select.Option = es_Option;
 select_Select.OptGroup = es_OptGroup;
+select_Select.SECRET_COMBOBOX_MODE_DO_NOT_USE = 'SECRET_COMBOBOX_MODE_DO_NOT_USE';
 select_Select.defaultProps = {
     prefixCls: 'ant-select',
     showSearch: false,
@@ -41778,11 +41644,13 @@ var pagination_Pagination_Pagination = function (_React$Component) {
 
         var _this = possibleConstructorReturn_default()(this, (Pagination.__proto__ || Object.getPrototypeOf(Pagination)).apply(this, arguments));
 
-        _this.renderPagination = function (locale) {
+        _this.renderPagination = function (contextLocale) {
             var _a = _this.props,
                 className = _a.className,
                 size = _a.size,
-                restProps = Pagination___rest(_a, ["className", "size"]);
+                customLocale = _a.locale,
+                restProps = Pagination___rest(_a, ["className", "size", "locale"]);
+            var locale = extends_default()({}, contextLocale, customLocale);
             var isSmall = size === 'small';
             return react["createElement"](es_Pagination, extends_default()({}, restProps, { className: classnames_default()(className, { mini: isSmall }), selectComponentClass: isSmall ? pagination_MiniSelect : es_select, locale: locale }));
         };
@@ -41832,6 +41700,32 @@ var spin___rest = this && this.__rest || function (s, e) {
 
 
 
+// Render indicator
+var defaultIndicator = null;
+function renderIndicator(props) {
+    var prefixCls = props.prefixCls,
+        indicator = props.indicator;
+
+    var dotClassName = prefixCls + '-dot';
+    if (react["isValidElement"](indicator)) {
+        return react["cloneElement"](indicator, {
+            className: classnames_default()(indicator.props.className, dotClassName)
+        });
+    }
+    if (react["isValidElement"](defaultIndicator)) {
+        return react["cloneElement"](defaultIndicator, {
+            className: classnames_default()(defaultIndicator.props.className, dotClassName)
+        });
+    }
+    return react["createElement"](
+        'span',
+        { className: classnames_default()(dotClassName, prefixCls + '-dot-spin') },
+        react["createElement"]('i', null),
+        react["createElement"]('i', null),
+        react["createElement"]('i', null),
+        react["createElement"]('i', null)
+    );
+}
 
 var spin_Spin = function (_React$Component) {
     inherits_default()(Spin, _React$Component);
@@ -41912,28 +41806,6 @@ var spin_Spin = function (_React$Component) {
             }
         }
     }, {
-        key: 'renderIndicator',
-        value: function renderIndicator() {
-            var _props2 = this.props,
-                prefixCls = _props2.prefixCls,
-                indicator = _props2.indicator;
-
-            var dotClassName = prefixCls + '-dot';
-            if (react["isValidElement"](indicator)) {
-                return react["cloneElement"](indicator, {
-                    className: classnames_default()(indicator.props.className, dotClassName)
-                });
-            }
-            return react["createElement"](
-                'span',
-                { className: classnames_default()(dotClassName, prefixCls + '-dot-spin') },
-                react["createElement"]('i', null),
-                react["createElement"]('i', null),
-                react["createElement"]('i', null),
-                react["createElement"]('i', null)
-            );
-        }
-    }, {
         key: 'render',
         value: function render() {
             var _classNames;
@@ -41952,7 +41824,7 @@ var spin_Spin = function (_React$Component) {
             var spinElement = react["createElement"](
                 'div',
                 extends_default()({}, divProps, { className: spinClassName }),
-                this.renderIndicator(),
+                renderIndicator(this.props),
                 tip ? react["createElement"](
                     'div',
                     { className: prefixCls + '-text' },
@@ -41984,12 +41856,15 @@ var spin_Spin = function (_React$Component) {
             }
             return spinElement;
         }
+    }], [{
+        key: 'setDefaultIndicator',
+        value: function setDefaultIndicator(indicator) {
+            defaultIndicator = indicator;
+        }
     }]);
 
     return Spin;
 }(react["Component"]);
-
-/* harmony default export */ var es_spin = (spin_Spin);
 
 spin_Spin.defaultProps = {
     prefixCls: 'ant-spin',
@@ -42005,6 +41880,7 @@ spin_Spin.propTypes = {
     wrapperClassName: prop_types_default.a.string,
     indicator: prop_types_default.a.node
 };
+/* harmony default export */ var es_spin = (spin_Spin);
 // CONCATENATED MODULE: ../node_modules/rc-menu/es/util.js
 
 
@@ -43819,6 +43695,11 @@ var Dropdown_Dropdown = function (_Component) {
         trigger = _props2.trigger,
         otherProps = _objectWithoutProperties(_props2, ['prefixCls', 'children', 'transitionName', 'animation', 'align', 'placement', 'getPopupContainer', 'showAction', 'hideAction', 'overlayClassName', 'overlayStyle', 'trigger']);
 
+    var triggerHideAction = hideAction;
+    if (!triggerHideAction && trigger.indexOf('contextMenu') !== -1) {
+      triggerHideAction = ['click'];
+    }
+
     return react_default.a.createElement(
       rc_trigger_es,
       Dropdown__extends({}, otherProps, {
@@ -43829,7 +43710,7 @@ var Dropdown_Dropdown = function (_Component) {
         builtinPlacements: rc_dropdown_es_placements,
         action: trigger,
         showAction: showAction,
-        hideAction: hideAction,
+        hideAction: triggerHideAction || [],
         popupPlacement: placement,
         popupAlign: align,
         popupTransitionName: transitionName,
@@ -43861,6 +43742,7 @@ Dropdown_Dropdown.propTypes = {
   placement: prop_types_default.a.string,
   overlay: prop_types_default.a.node,
   trigger: prop_types_default.a.array,
+  alignPoint: prop_types_default.a.bool,
   showAction: prop_types_default.a.array,
   hideAction: prop_types_default.a.array,
   getPopupContainer: prop_types_default.a.func,
@@ -43868,11 +43750,9 @@ Dropdown_Dropdown.propTypes = {
   defaultVisible: prop_types_default.a.bool
 };
 Dropdown_Dropdown.defaultProps = {
-  minOverlayWidthMatchTrigger: true,
   prefixCls: 'rc-dropdown',
   trigger: ['hover'],
   showAction: [],
-  hideAction: [],
   overlayClassName: '',
   overlayStyle: {},
   defaultVisible: false,
@@ -43911,8 +43791,20 @@ var Dropdown__initialiseProps = function _initialiseProps() {
     props.onVisibleChange(visible);
   };
 
+  this.getMinOverlayWidthMatchTrigger = function () {
+    var _props3 = _this2.props,
+        minOverlayWidthMatchTrigger = _props3.minOverlayWidthMatchTrigger,
+        alignPoint = _props3.alignPoint;
+
+    if ('minOverlayWidthMatchTrigger' in _this2.props) {
+      return minOverlayWidthMatchTrigger;
+    }
+
+    return !alignPoint;
+  };
+
   this.afterVisibleChange = function (visible) {
-    if (visible && _this2.props.minOverlayWidthMatchTrigger) {
+    if (visible && _this2.getMinOverlayWidthMatchTrigger()) {
       var overlayNode = _this2.getPopupDomNode();
       var rootNode = react_dom_default.a.findDOMNode(_this2);
       if (rootNode && overlayNode && rootNode.offsetWidth > overlayNode.offsetWidth) {
@@ -44010,9 +43902,14 @@ var dropdown_Dropdown = function (_React$Component) {
                 selectable: selectable,
                 focusable: focusable
             });
+            var triggerActions = disabled ? [] : trigger;
+            var alignPoint = void 0;
+            if (triggerActions && triggerActions.indexOf('contextMenu') !== -1) {
+                alignPoint = true;
+            }
             return react["createElement"](
                 rc_dropdown_es,
-                extends_default()({}, this.props, { transitionName: this.getTransitionName(), trigger: disabled ? [] : trigger, overlay: fixedModeOverlay }),
+                extends_default()({ alignPoint: alignPoint }, this.props, { transitionName: this.getTransitionName(), trigger: triggerActions, overlay: fixedModeOverlay }),
                 dropdownTrigger
             );
         }
@@ -44747,10 +44644,11 @@ var group_RadioGroup = function (_React$Component) {
             var prefixCls = props.prefixCls,
                 _props$className = props.className,
                 className = _props$className === undefined ? '' : _props$className,
-                options = props.options;
+                options = props.options,
+                buttonStyle = props.buttonStyle;
 
             var groupPrefixCls = prefixCls + '-group';
-            var classString = classnames_default()(groupPrefixCls, defineProperty_default()({}, groupPrefixCls + '-' + props.size, props.size), className);
+            var classString = classnames_default()(groupPrefixCls, groupPrefixCls + '-' + buttonStyle, defineProperty_default()({}, groupPrefixCls + '-' + props.size, props.size), className);
             var children = props.children;
             // 如果存在 options, 优先使用
             if (options && options.length > 0) {
@@ -44787,7 +44685,8 @@ var group_RadioGroup = function (_React$Component) {
 
 group_RadioGroup.defaultProps = {
     disabled: false,
-    prefixCls: 'ant-radio'
+    prefixCls: 'ant-radio',
+    buttonStyle: 'outline'
 };
 group_RadioGroup.childContextTypes = {
     radioGroup: prop_types_default.a.any
@@ -44929,8 +44828,12 @@ var filterDropdown_FilterMenu = function (_React$Component) {
                 locale = _this$props.locale,
                 prefixCls = _this$props.prefixCls;
 
+            var filterd = _this.props.selectedKeys.length > 0;
             var filterIcon = column.filterIcon;
-            var dropdownSelectedClass = _this.props.selectedKeys.length > 0 ? prefixCls + '-selected' : '';
+            if (typeof filterIcon === 'function') {
+                filterIcon = filterIcon(filterd);
+            }
+            var dropdownSelectedClass = filterd ? prefixCls + '-selected' : '';
             return filterIcon ? react["cloneElement"](filterIcon, {
                 title: locale.filterTitle,
                 className: classnames_default()(prefixCls + '-icon', filterIcon.props.className)
@@ -44991,8 +44894,10 @@ var filterDropdown_FilterMenu = function (_React$Component) {
     }, {
         key: 'confirmFilter',
         value: function confirmFilter() {
-            if (this.state.selectedKeys !== this.props.selectedKeys) {
-                this.props.confirmFilter(this.props.column, this.state.selectedKeys);
+            var selectedKeys = this.state.selectedKeys;
+
+            if (!shallowequal_default()(selectedKeys, this.props.selectedKeys)) {
+                this.props.confirmFilter(this.props.column, selectedKeys);
             }
         }
     }, {
@@ -45049,6 +44954,8 @@ var filterDropdown_FilterMenu = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this3 = this;
+
             var _props = this.props,
                 column = _props.column,
                 locale = _props.locale,
@@ -45059,10 +44966,27 @@ var filterDropdown_FilterMenu = function (_React$Component) {
 
             var multiple = 'filterMultiple' in column ? column.filterMultiple : true;
             var dropdownMenuClass = classnames_default()(defineProperty_default()({}, dropdownPrefixCls + '-menu-without-submenu', !this.hasSubMenu()));
-            var menus = column.filterDropdown ? react["createElement"](
+            var filterDropdown = column.filterDropdown;
+
+            if (filterDropdown && typeof filterDropdown === 'function') {
+                filterDropdown = filterDropdown({
+                    prefixCls: dropdownPrefixCls + '-custom',
+                    setSelectedKeys: function setSelectedKeys(selectedKeys) {
+                        return _this3.setSelectedKeys({ selectedKeys: selectedKeys });
+                    },
+                    selectedKeys: this.state.selectedKeys,
+                    confirm: this.handleConfirm,
+                    clearFilters: this.handleClearFilters,
+                    filters: column.filters,
+                    getPopupContainer: function getPopupContainer(triggerNode) {
+                        return triggerNode.parentNode;
+                    }
+                });
+            }
+            var menus = filterDropdown ? react["createElement"](
                 FilterDropdownMenuWrapper,
                 null,
-                column.filterDropdown
+                filterDropdown
             ) : react["createElement"](
                 FilterDropdownMenuWrapper,
                 { className: prefixCls + '-dropdown' },
@@ -46820,7 +46744,7 @@ var table_Table_Table = function (_React$Component) {
         _this.getRecordKey = function (record, index) {
             var rowKey = _this.props.rowKey;
             var recordKey = typeof rowKey === 'function' ? rowKey(record, index) : record[rowKey];
-            _util_warning(recordKey !== undefined, 'Each record in dataSource of table should have a unique `key` prop, or set `rowKey` to an unique primary key,' + 'see https://u.ant.design/table-row-key');
+            _util_warning(recordKey !== undefined, 'Each record in dataSource of table should have a unique `key` prop, ' + 'or set `rowKey` of Table to an unique primary key, ' + 'see https://u.ant.design/table-row-key');
             return recordKey === undefined ? index : recordKey;
         };
         _this.getPopupContainer = function () {
@@ -47387,10 +47311,10 @@ var table_Table_Table = function (_React$Component) {
 
             var bodyRow = components && components.body && components.body.row;
             var preBodyRow = prevComponents && prevComponents.body && prevComponents.body.row;
-            if (!this.components || bodyRow !== preBodyRow) {
-                this.components = extends_default()({}, components);
-                this.components.body = extends_default()({}, components.body, { row: createTableRow(bodyRow) });
+            if (!this.row || bodyRow !== preBodyRow) {
+                this.row = createTableRow(bodyRow);
             }
+            this.components = extends_default()({}, components, { body: extends_default()({}, components.body, { row: this.row }) });
         }
     }, {
         key: 'render',
@@ -47459,7 +47383,7 @@ table_Table_Table.defaultProps = {
     prefixCls: 'ant-table',
     useFixedHeader: false,
     className: '',
-    size: 'large',
+    size: 'default',
     loading: false,
     bordered: false,
     indentSize: 20,
@@ -47479,10 +47403,6 @@ var grid_style_default = /*#__PURE__*/__webpack_require__.n(grid_style);
 
 // CONCATENATED MODULE: ../node_modules/antd/es/col/style/index.js
 
-
-// EXTERNAL MODULE: ../node_modules/af-webpack/node_modules/@babel/runtime/helpers/jsx.js
-var jsx = __webpack_require__("nc9e");
-var jsx_default = /*#__PURE__*/__webpack_require__.n(jsx);
 
 // EXTERNAL MODULE: ../node_modules/af-webpack/node_modules/@babel/runtime/core-js/object/keys.js
 var object_keys = __webpack_require__("mA+Z");
@@ -48194,11 +48114,11 @@ var Search_Search = function (_React$Component) {
 
         var _this = possibleConstructorReturn_default()(this, (Search.__proto__ || Object.getPrototypeOf(Search)).apply(this, arguments));
 
-        _this.onSearch = function () {
+        _this.onSearch = function (e) {
             var onSearch = _this.props.onSearch;
 
             if (onSearch) {
-                onSearch(_this.input.input.value);
+                onSearch(_this.input.input.value, e);
             }
             _this.input.focus();
         };
@@ -48875,7 +48795,6 @@ var api_default = /*#__PURE__*/__webpack_require__.n(src_api);
 
 
 
-
 var api_TextArea = es_input.TextArea;
 /* eslint no-underscore-dangle:0 */
 
@@ -48886,10 +48805,6 @@ var port = src_config.port,
 var api_isObject = src_utils.isObject,
     api_parseKey = src_utils.parseKey,
     api_handleRequest = src_utils.handleRequest;
-
-var api__ref =
-/*#__PURE__*/
-jsx_default()("h3", {}, void 0, "Params");
 
 var api_ApiItem =
 /*#__PURE__*/
@@ -49018,39 +48933,39 @@ function (_Component) {
         postParams = stringify_default()(getParams, null, 2);
       }
 
-      return jsx_default()(card, {
+      return react_default.a.createElement(card, {
         className: api_default.a.apiItem,
-        title: jsx_default()("p", {
+        title: react_default.a.createElement("p", {
           className: api_default.a.apiItemTitle
-        }, void 0, jsx_default()("span", {}, void 0, method), jsx_default()("span", {}, void 0, u))
-      }, void 0, !isStatic && method === "GET" && jsx_default()("div", {
+        }, react_default.a.createElement("span", null, method), react_default.a.createElement("span", null, u))
+      }, !isStatic && method === "GET" && react_default.a.createElement("div", {
         className: api_default.a.apiItemOperator
-      }, void 0, jsx_default()(es_row, {
+      }, react_default.a.createElement(es_row, {
         gutter: 16
-      }, void 0, jsx_default()(es_col, {
+      }, react_default.a.createElement(es_col, {
         span: 20
-      }, void 0, jsx_default()(es_input, {
+      }, react_default.a.createElement(es_input, {
         value: urlValue,
         onChange: this.handleChange,
         placeholder: url
-      })), jsx_default()(es_col, {
+      })), react_default.a.createElement(es_col, {
         span: 4
-      }, void 0, jsx_default()("a", {
+      }, react_default.a.createElement("a", {
         target: "_blank",
         href: urlValue
-      }, void 0, "send")))), (isStatic && method === "GET" || method !== "GET") && jsx_default()("div", {
+      }, "send")))), (isStatic && method === "GET" || method !== "GET") && react_default.a.createElement("div", {
         className: api_default.a.apiItemOperator
-      }, void 0, jsx_default()(es_row, {
+      }, react_default.a.createElement(es_row, {
         gutter: 16
-      }, void 0, jsx_default()(es_col, {
+      }, react_default.a.createElement(es_col, {
         span: 20
-      }, void 0, jsx_default()(es_input, {
+      }, react_default.a.createElement(es_input, {
         value: urlValue,
         onChange: this.handleChange,
         placeholder: url
-      })), jsx_default()(es_col, {
+      })), react_default.a.createElement(es_col, {
         span: 4
-      }, void 0, jsx_default()(es_button, {
+      }, react_default.a.createElement(es_button, {
         type: "primary",
         onClick: function onClick() {
           return _this2.handlePostRequest(u, url, postParams, method);
@@ -49058,11 +48973,11 @@ function (_Component) {
         style: {
           width: "100%"
         }
-      }, void 0, "send"))), method !== "GET" && dataSource.length > 0 && jsx_default()(es_row, {
+      }, "send"))), method !== "GET" && dataSource.length > 0 && react_default.a.createElement(es_row, {
         gutter: 16
-      }, void 0, jsx_default()(es_col, {
+      }, react_default.a.createElement(es_col, {
         span: 24
-      }, void 0, jsx_default()(api_TextArea, {
+      }, react_default.a.createElement(api_TextArea, {
         style: {
           marginTop: 16,
           width: "100%"
@@ -49073,13 +48988,13 @@ function (_Component) {
         },
         value: postParams,
         onChange: this.handlePostParams
-      })))), desc && jsx_default()("p", {
+      })))), desc && react_default.a.createElement("p", {
         style: {
           marginTop: 16
         }
-      }, void 0, desc), dataSource.length > 0 && jsx_default()("div", {
+      }, desc), dataSource.length > 0 && react_default.a.createElement("div", {
         className: api_default.a.apiItemDocs
-      }, void 0, api__ref, jsx_default()(es_table, {
+      }, react_default.a.createElement("h3", null, "Params"), react_default.a.createElement(es_table, {
         rowKey: function rowKey(record) {
           return record.p;
         },
@@ -49096,10 +49011,6 @@ function (_Component) {
   return ApiItem;
 }(react["Component"]); // eslint-disable-next-line
 
-
-var api__ref2 =
-/*#__PURE__*/
-jsx_default()("h1", {}, void 0, "API DOCS");
 
 var api_ApiDoc =
 /*#__PURE__*/
@@ -49139,25 +49050,26 @@ function (_Component2) {
       var _this$state2 = this.state,
           modalVisible = _this$state2.modalVisible,
           theMockData = _this$state2.theMockData;
-      return jsx_default()("div", {
+      return react_default.a.createElement("div", {
         className: api_default.a.apiDoc
-      }, void 0, api__ref2, jsx_default()(es_row, {}, void 0, jsx_default()(es_col, {
+      }, react_default.a.createElement("h1", null, "API DOCS"), react_default.a.createElement(es_row, null, react_default.a.createElement(es_col, {
         md: 16,
         xs: 24
-      }, void 0, jsx_default()("div", {
+      }, react_default.a.createElement("div", {
         className: api_default.a.list
-      }, void 0, keys_default()(api_mockData).map(function (key) {
-        return jsx_default()(api_ApiItem, {
+      }, keys_default()(api_mockData).map(function (key) {
+        return react_default.a.createElement(api_ApiItem, {
+          key: key,
           req: key,
           data: api_mockData[key],
           onPostClick: _this4.handleShowData
-        }, key);
-      })))), jsx_default()(modal, {
+        });
+      })))), react_default.a.createElement(modal, {
         title: "Response Body",
         visible: modalVisible,
         onOk: this.handleModalCancel,
         onCancel: this.handleModalCancel
-      }, void 0, jsx_default()(api_TextArea, {
+      }, react_default.a.createElement(api_TextArea, {
         autosize: {
           minRows: 2,
           maxRows: 20
@@ -49172,7 +49084,7 @@ function (_Component2) {
   return ApiDoc;
 }(react["Component"]);
 
-react_dom_default.a.render(jsx_default()(api_ApiDoc, {}), document.body);
+react_dom_default.a.render(react_default.a.createElement(api_ApiDoc, null), document.body);
 
 /***/ }),
 
@@ -49183,65 +49095,6 @@ __webpack_require__("i+u+");
 __webpack_require__("COf8");
 module.exports = __webpack_require__("ZxII").f('iterator');
 
-
-/***/ }),
-
-/***/ "nc9e":
-/***/ (function(module, exports, __webpack_require__) {
-
-var _Symbol$for = __webpack_require__("iHdM");
-
-var _Symbol = __webpack_require__("z6Vi");
-
-var REACT_ELEMENT_TYPE;
-
-function _createRawReactElement(type, props, key, children) {
-  if (!REACT_ELEMENT_TYPE) {
-    REACT_ELEMENT_TYPE = typeof _Symbol === "function" && _Symbol$for && _Symbol$for("react.element") || 0xeac7;
-  }
-
-  var defaultProps = type && type.defaultProps;
-  var childrenLength = arguments.length - 3;
-
-  if (!props && childrenLength !== 0) {
-    props = {
-      children: void 0
-    };
-  }
-
-  if (props && defaultProps) {
-    for (var propName in defaultProps) {
-      if (props[propName] === void 0) {
-        props[propName] = defaultProps[propName];
-      }
-    }
-  } else if (!props) {
-    props = defaultProps || {};
-  }
-
-  if (childrenLength === 1) {
-    props.children = children;
-  } else if (childrenLength > 1) {
-    var childArray = new Array(childrenLength);
-
-    for (var i = 0; i < childrenLength; i++) {
-      childArray[i] = arguments[i + 3];
-    }
-
-    props.children = childArray;
-  }
-
-  return {
-    $$typeof: REACT_ELEMENT_TYPE,
-    type: type,
-    key: key === undefined ? null : '' + key,
-    ref: null,
-    props: props,
-    _owner: null
-  };
-}
-
-module.exports = _createRawReactElement;
 
 /***/ }),
 
@@ -50005,15 +49858,6 @@ exports.f = __webpack_require__("6MLN") ? gOPD : function getOwnPropertyDescript
   } catch (e) { /* empty */ }
   if (has(O, P)) return createDesc(!pIE.f.call(O, P), O[P]);
 };
-
-
-/***/ }),
-
-/***/ "tEs8":
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__("Aa2f");
-module.exports = __webpack_require__("zKeE").Symbol['for'];
 
 
 /***/ }),
