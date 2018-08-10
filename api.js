@@ -4471,42 +4471,6 @@ module.exports = {
 
 /***/ }),
 
-/***/ "IAnx":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-
-
-var React = __webpack_require__("1n8/");
-var factory = __webpack_require__("mdfe");
-
-if (typeof React === 'undefined') {
-  throw Error(
-    'create-react-class could not find the React object. If you are using script tags, ' +
-      'make sure that React is being loaded before create-react-class.'
-  );
-}
-
-// Hack to grab NoopUpdateQueue from isomorphic React
-var ReactNoopUpdateQueue = new React.Component().updater;
-
-module.exports = factory(
-  React.Component,
-  React.isValidElement,
-  ReactNoopUpdateQueue
-);
-
-
-/***/ }),
-
 /***/ "ID6i":
 /***/ (function(module, exports) {
 
@@ -25553,940 +25517,6 @@ module.exports = {
 
 /***/ }),
 
-/***/ "mdfe":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-
-
-var _assign = __webpack_require__("J4Nk");
-
-var emptyObject = __webpack_require__("+CtU");
-var _invariant = __webpack_require__("wRU+");
-
-if (false) {
-  var warning = require('fbjs/lib/warning');
-}
-
-var MIXINS_KEY = 'mixins';
-
-// Helper function to allow the creation of anonymous functions which do not
-// have .name set to the name of the variable being assigned to.
-function identity(fn) {
-  return fn;
-}
-
-var ReactPropTypeLocationNames;
-if (false) {
-  ReactPropTypeLocationNames = {
-    prop: 'prop',
-    context: 'context',
-    childContext: 'child context'
-  };
-} else {
-  ReactPropTypeLocationNames = {};
-}
-
-function factory(ReactComponent, isValidElement, ReactNoopUpdateQueue) {
-  /**
-   * Policies that describe methods in `ReactClassInterface`.
-   */
-
-  var injectedMixins = [];
-
-  /**
-   * Composite components are higher-level components that compose other composite
-   * or host components.
-   *
-   * To create a new type of `ReactClass`, pass a specification of
-   * your new class to `React.createClass`. The only requirement of your class
-   * specification is that you implement a `render` method.
-   *
-   *   var MyComponent = React.createClass({
-   *     render: function() {
-   *       return <div>Hello World</div>;
-   *     }
-   *   });
-   *
-   * The class specification supports a specific protocol of methods that have
-   * special meaning (e.g. `render`). See `ReactClassInterface` for
-   * more the comprehensive protocol. Any other properties and methods in the
-   * class specification will be available on the prototype.
-   *
-   * @interface ReactClassInterface
-   * @internal
-   */
-  var ReactClassInterface = {
-    /**
-     * An array of Mixin objects to include when defining your component.
-     *
-     * @type {array}
-     * @optional
-     */
-    mixins: 'DEFINE_MANY',
-
-    /**
-     * An object containing properties and methods that should be defined on
-     * the component's constructor instead of its prototype (static methods).
-     *
-     * @type {object}
-     * @optional
-     */
-    statics: 'DEFINE_MANY',
-
-    /**
-     * Definition of prop types for this component.
-     *
-     * @type {object}
-     * @optional
-     */
-    propTypes: 'DEFINE_MANY',
-
-    /**
-     * Definition of context types for this component.
-     *
-     * @type {object}
-     * @optional
-     */
-    contextTypes: 'DEFINE_MANY',
-
-    /**
-     * Definition of context types this component sets for its children.
-     *
-     * @type {object}
-     * @optional
-     */
-    childContextTypes: 'DEFINE_MANY',
-
-    // ==== Definition methods ====
-
-    /**
-     * Invoked when the component is mounted. Values in the mapping will be set on
-     * `this.props` if that prop is not specified (i.e. using an `in` check).
-     *
-     * This method is invoked before `getInitialState` and therefore cannot rely
-     * on `this.state` or use `this.setState`.
-     *
-     * @return {object}
-     * @optional
-     */
-    getDefaultProps: 'DEFINE_MANY_MERGED',
-
-    /**
-     * Invoked once before the component is mounted. The return value will be used
-     * as the initial value of `this.state`.
-     *
-     *   getInitialState: function() {
-     *     return {
-     *       isOn: false,
-     *       fooBaz: new BazFoo()
-     *     }
-     *   }
-     *
-     * @return {object}
-     * @optional
-     */
-    getInitialState: 'DEFINE_MANY_MERGED',
-
-    /**
-     * @return {object}
-     * @optional
-     */
-    getChildContext: 'DEFINE_MANY_MERGED',
-
-    /**
-     * Uses props from `this.props` and state from `this.state` to render the
-     * structure of the component.
-     *
-     * No guarantees are made about when or how often this method is invoked, so
-     * it must not have side effects.
-     *
-     *   render: function() {
-     *     var name = this.props.name;
-     *     return <div>Hello, {name}!</div>;
-     *   }
-     *
-     * @return {ReactComponent}
-     * @required
-     */
-    render: 'DEFINE_ONCE',
-
-    // ==== Delegate methods ====
-
-    /**
-     * Invoked when the component is initially created and about to be mounted.
-     * This may have side effects, but any external subscriptions or data created
-     * by this method must be cleaned up in `componentWillUnmount`.
-     *
-     * @optional
-     */
-    componentWillMount: 'DEFINE_MANY',
-
-    /**
-     * Invoked when the component has been mounted and has a DOM representation.
-     * However, there is no guarantee that the DOM node is in the document.
-     *
-     * Use this as an opportunity to operate on the DOM when the component has
-     * been mounted (initialized and rendered) for the first time.
-     *
-     * @param {DOMElement} rootNode DOM element representing the component.
-     * @optional
-     */
-    componentDidMount: 'DEFINE_MANY',
-
-    /**
-     * Invoked before the component receives new props.
-     *
-     * Use this as an opportunity to react to a prop transition by updating the
-     * state using `this.setState`. Current props are accessed via `this.props`.
-     *
-     *   componentWillReceiveProps: function(nextProps, nextContext) {
-     *     this.setState({
-     *       likesIncreasing: nextProps.likeCount > this.props.likeCount
-     *     });
-     *   }
-     *
-     * NOTE: There is no equivalent `componentWillReceiveState`. An incoming prop
-     * transition may cause a state change, but the opposite is not true. If you
-     * need it, you are probably looking for `componentWillUpdate`.
-     *
-     * @param {object} nextProps
-     * @optional
-     */
-    componentWillReceiveProps: 'DEFINE_MANY',
-
-    /**
-     * Invoked while deciding if the component should be updated as a result of
-     * receiving new props, state and/or context.
-     *
-     * Use this as an opportunity to `return false` when you're certain that the
-     * transition to the new props/state/context will not require a component
-     * update.
-     *
-     *   shouldComponentUpdate: function(nextProps, nextState, nextContext) {
-     *     return !equal(nextProps, this.props) ||
-     *       !equal(nextState, this.state) ||
-     *       !equal(nextContext, this.context);
-     *   }
-     *
-     * @param {object} nextProps
-     * @param {?object} nextState
-     * @param {?object} nextContext
-     * @return {boolean} True if the component should update.
-     * @optional
-     */
-    shouldComponentUpdate: 'DEFINE_ONCE',
-
-    /**
-     * Invoked when the component is about to update due to a transition from
-     * `this.props`, `this.state` and `this.context` to `nextProps`, `nextState`
-     * and `nextContext`.
-     *
-     * Use this as an opportunity to perform preparation before an update occurs.
-     *
-     * NOTE: You **cannot** use `this.setState()` in this method.
-     *
-     * @param {object} nextProps
-     * @param {?object} nextState
-     * @param {?object} nextContext
-     * @param {ReactReconcileTransaction} transaction
-     * @optional
-     */
-    componentWillUpdate: 'DEFINE_MANY',
-
-    /**
-     * Invoked when the component's DOM representation has been updated.
-     *
-     * Use this as an opportunity to operate on the DOM when the component has
-     * been updated.
-     *
-     * @param {object} prevProps
-     * @param {?object} prevState
-     * @param {?object} prevContext
-     * @param {DOMElement} rootNode DOM element representing the component.
-     * @optional
-     */
-    componentDidUpdate: 'DEFINE_MANY',
-
-    /**
-     * Invoked when the component is about to be removed from its parent and have
-     * its DOM representation destroyed.
-     *
-     * Use this as an opportunity to deallocate any external resources.
-     *
-     * NOTE: There is no `componentDidUnmount` since your component will have been
-     * destroyed by that point.
-     *
-     * @optional
-     */
-    componentWillUnmount: 'DEFINE_MANY',
-
-    /**
-     * Replacement for (deprecated) `componentWillMount`.
-     *
-     * @optional
-     */
-    UNSAFE_componentWillMount: 'DEFINE_MANY',
-
-    /**
-     * Replacement for (deprecated) `componentWillReceiveProps`.
-     *
-     * @optional
-     */
-    UNSAFE_componentWillReceiveProps: 'DEFINE_MANY',
-
-    /**
-     * Replacement for (deprecated) `componentWillUpdate`.
-     *
-     * @optional
-     */
-    UNSAFE_componentWillUpdate: 'DEFINE_MANY',
-
-    // ==== Advanced methods ====
-
-    /**
-     * Updates the component's currently mounted DOM representation.
-     *
-     * By default, this implements React's rendering and reconciliation algorithm.
-     * Sophisticated clients may wish to override this.
-     *
-     * @param {ReactReconcileTransaction} transaction
-     * @internal
-     * @overridable
-     */
-    updateComponent: 'OVERRIDE_BASE'
-  };
-
-  /**
-   * Similar to ReactClassInterface but for static methods.
-   */
-  var ReactClassStaticInterface = {
-    /**
-     * This method is invoked after a component is instantiated and when it
-     * receives new props. Return an object to update state in response to
-     * prop changes. Return null to indicate no change to state.
-     *
-     * If an object is returned, its keys will be merged into the existing state.
-     *
-     * @return {object || null}
-     * @optional
-     */
-    getDerivedStateFromProps: 'DEFINE_MANY_MERGED'
-  };
-
-  /**
-   * Mapping from class specification keys to special processing functions.
-   *
-   * Although these are declared like instance properties in the specification
-   * when defining classes using `React.createClass`, they are actually static
-   * and are accessible on the constructor instead of the prototype. Despite
-   * being static, they must be defined outside of the "statics" key under
-   * which all other static methods are defined.
-   */
-  var RESERVED_SPEC_KEYS = {
-    displayName: function(Constructor, displayName) {
-      Constructor.displayName = displayName;
-    },
-    mixins: function(Constructor, mixins) {
-      if (mixins) {
-        for (var i = 0; i < mixins.length; i++) {
-          mixSpecIntoComponent(Constructor, mixins[i]);
-        }
-      }
-    },
-    childContextTypes: function(Constructor, childContextTypes) {
-      if (false) {
-        validateTypeDef(Constructor, childContextTypes, 'childContext');
-      }
-      Constructor.childContextTypes = _assign(
-        {},
-        Constructor.childContextTypes,
-        childContextTypes
-      );
-    },
-    contextTypes: function(Constructor, contextTypes) {
-      if (false) {
-        validateTypeDef(Constructor, contextTypes, 'context');
-      }
-      Constructor.contextTypes = _assign(
-        {},
-        Constructor.contextTypes,
-        contextTypes
-      );
-    },
-    /**
-     * Special case getDefaultProps which should move into statics but requires
-     * automatic merging.
-     */
-    getDefaultProps: function(Constructor, getDefaultProps) {
-      if (Constructor.getDefaultProps) {
-        Constructor.getDefaultProps = createMergedResultFunction(
-          Constructor.getDefaultProps,
-          getDefaultProps
-        );
-      } else {
-        Constructor.getDefaultProps = getDefaultProps;
-      }
-    },
-    propTypes: function(Constructor, propTypes) {
-      if (false) {
-        validateTypeDef(Constructor, propTypes, 'prop');
-      }
-      Constructor.propTypes = _assign({}, Constructor.propTypes, propTypes);
-    },
-    statics: function(Constructor, statics) {
-      mixStaticSpecIntoComponent(Constructor, statics);
-    },
-    autobind: function() {}
-  };
-
-  function validateTypeDef(Constructor, typeDef, location) {
-    for (var propName in typeDef) {
-      if (typeDef.hasOwnProperty(propName)) {
-        // use a warning instead of an _invariant so components
-        // don't show up in prod but only in __DEV__
-        if (false) {
-          warning(
-            typeof typeDef[propName] === 'function',
-            '%s: %s type `%s` is invalid; it must be a function, usually from ' +
-              'React.PropTypes.',
-            Constructor.displayName || 'ReactClass',
-            ReactPropTypeLocationNames[location],
-            propName
-          );
-        }
-      }
-    }
-  }
-
-  function validateMethodOverride(isAlreadyDefined, name) {
-    var specPolicy = ReactClassInterface.hasOwnProperty(name)
-      ? ReactClassInterface[name]
-      : null;
-
-    // Disallow overriding of base class methods unless explicitly allowed.
-    if (ReactClassMixin.hasOwnProperty(name)) {
-      _invariant(
-        specPolicy === 'OVERRIDE_BASE',
-        'ReactClassInterface: You are attempting to override ' +
-          '`%s` from your class specification. Ensure that your method names ' +
-          'do not overlap with React methods.',
-        name
-      );
-    }
-
-    // Disallow defining methods more than once unless explicitly allowed.
-    if (isAlreadyDefined) {
-      _invariant(
-        specPolicy === 'DEFINE_MANY' || specPolicy === 'DEFINE_MANY_MERGED',
-        'ReactClassInterface: You are attempting to define ' +
-          '`%s` on your component more than once. This conflict may be due ' +
-          'to a mixin.',
-        name
-      );
-    }
-  }
-
-  /**
-   * Mixin helper which handles policy validation and reserved
-   * specification keys when building React classes.
-   */
-  function mixSpecIntoComponent(Constructor, spec) {
-    if (!spec) {
-      if (false) {
-        var typeofSpec = typeof spec;
-        var isMixinValid = typeofSpec === 'object' && spec !== null;
-
-        if (process.env.NODE_ENV !== 'production') {
-          warning(
-            isMixinValid,
-            "%s: You're attempting to include a mixin that is either null " +
-              'or not an object. Check the mixins included by the component, ' +
-              'as well as any mixins they include themselves. ' +
-              'Expected object but got %s.',
-            Constructor.displayName || 'ReactClass',
-            spec === null ? null : typeofSpec
-          );
-        }
-      }
-
-      return;
-    }
-
-    _invariant(
-      typeof spec !== 'function',
-      "ReactClass: You're attempting to " +
-        'use a component class or function as a mixin. Instead, just use a ' +
-        'regular object.'
-    );
-    _invariant(
-      !isValidElement(spec),
-      "ReactClass: You're attempting to " +
-        'use a component as a mixin. Instead, just use a regular object.'
-    );
-
-    var proto = Constructor.prototype;
-    var autoBindPairs = proto.__reactAutoBindPairs;
-
-    // By handling mixins before any other properties, we ensure the same
-    // chaining order is applied to methods with DEFINE_MANY policy, whether
-    // mixins are listed before or after these methods in the spec.
-    if (spec.hasOwnProperty(MIXINS_KEY)) {
-      RESERVED_SPEC_KEYS.mixins(Constructor, spec.mixins);
-    }
-
-    for (var name in spec) {
-      if (!spec.hasOwnProperty(name)) {
-        continue;
-      }
-
-      if (name === MIXINS_KEY) {
-        // We have already handled mixins in a special case above.
-        continue;
-      }
-
-      var property = spec[name];
-      var isAlreadyDefined = proto.hasOwnProperty(name);
-      validateMethodOverride(isAlreadyDefined, name);
-
-      if (RESERVED_SPEC_KEYS.hasOwnProperty(name)) {
-        RESERVED_SPEC_KEYS[name](Constructor, property);
-      } else {
-        // Setup methods on prototype:
-        // The following member methods should not be automatically bound:
-        // 1. Expected ReactClass methods (in the "interface").
-        // 2. Overridden methods (that were mixed in).
-        var isReactClassMethod = ReactClassInterface.hasOwnProperty(name);
-        var isFunction = typeof property === 'function';
-        var shouldAutoBind =
-          isFunction &&
-          !isReactClassMethod &&
-          !isAlreadyDefined &&
-          spec.autobind !== false;
-
-        if (shouldAutoBind) {
-          autoBindPairs.push(name, property);
-          proto[name] = property;
-        } else {
-          if (isAlreadyDefined) {
-            var specPolicy = ReactClassInterface[name];
-
-            // These cases should already be caught by validateMethodOverride.
-            _invariant(
-              isReactClassMethod &&
-                (specPolicy === 'DEFINE_MANY_MERGED' ||
-                  specPolicy === 'DEFINE_MANY'),
-              'ReactClass: Unexpected spec policy %s for key %s ' +
-                'when mixing in component specs.',
-              specPolicy,
-              name
-            );
-
-            // For methods which are defined more than once, call the existing
-            // methods before calling the new property, merging if appropriate.
-            if (specPolicy === 'DEFINE_MANY_MERGED') {
-              proto[name] = createMergedResultFunction(proto[name], property);
-            } else if (specPolicy === 'DEFINE_MANY') {
-              proto[name] = createChainedFunction(proto[name], property);
-            }
-          } else {
-            proto[name] = property;
-            if (false) {
-              // Add verbose displayName to the function, which helps when looking
-              // at profiling tools.
-              if (typeof property === 'function' && spec.displayName) {
-                proto[name].displayName = spec.displayName + '_' + name;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  function mixStaticSpecIntoComponent(Constructor, statics) {
-    if (!statics) {
-      return;
-    }
-
-    for (var name in statics) {
-      var property = statics[name];
-      if (!statics.hasOwnProperty(name)) {
-        continue;
-      }
-
-      var isReserved = name in RESERVED_SPEC_KEYS;
-      _invariant(
-        !isReserved,
-        'ReactClass: You are attempting to define a reserved ' +
-          'property, `%s`, that shouldn\'t be on the "statics" key. Define it ' +
-          'as an instance property instead; it will still be accessible on the ' +
-          'constructor.',
-        name
-      );
-
-      var isAlreadyDefined = name in Constructor;
-      if (isAlreadyDefined) {
-        var specPolicy = ReactClassStaticInterface.hasOwnProperty(name)
-          ? ReactClassStaticInterface[name]
-          : null;
-
-        _invariant(
-          specPolicy === 'DEFINE_MANY_MERGED',
-          'ReactClass: You are attempting to define ' +
-            '`%s` on your component more than once. This conflict may be ' +
-            'due to a mixin.',
-          name
-        );
-
-        Constructor[name] = createMergedResultFunction(Constructor[name], property);
-
-        return;
-      }
-
-      Constructor[name] = property;
-    }
-  }
-
-  /**
-   * Merge two objects, but throw if both contain the same key.
-   *
-   * @param {object} one The first object, which is mutated.
-   * @param {object} two The second object
-   * @return {object} one after it has been mutated to contain everything in two.
-   */
-  function mergeIntoWithNoDuplicateKeys(one, two) {
-    _invariant(
-      one && two && typeof one === 'object' && typeof two === 'object',
-      'mergeIntoWithNoDuplicateKeys(): Cannot merge non-objects.'
-    );
-
-    for (var key in two) {
-      if (two.hasOwnProperty(key)) {
-        _invariant(
-          one[key] === undefined,
-          'mergeIntoWithNoDuplicateKeys(): ' +
-            'Tried to merge two objects with the same key: `%s`. This conflict ' +
-            'may be due to a mixin; in particular, this may be caused by two ' +
-            'getInitialState() or getDefaultProps() methods returning objects ' +
-            'with clashing keys.',
-          key
-        );
-        one[key] = two[key];
-      }
-    }
-    return one;
-  }
-
-  /**
-   * Creates a function that invokes two functions and merges their return values.
-   *
-   * @param {function} one Function to invoke first.
-   * @param {function} two Function to invoke second.
-   * @return {function} Function that invokes the two argument functions.
-   * @private
-   */
-  function createMergedResultFunction(one, two) {
-    return function mergedResult() {
-      var a = one.apply(this, arguments);
-      var b = two.apply(this, arguments);
-      if (a == null) {
-        return b;
-      } else if (b == null) {
-        return a;
-      }
-      var c = {};
-      mergeIntoWithNoDuplicateKeys(c, a);
-      mergeIntoWithNoDuplicateKeys(c, b);
-      return c;
-    };
-  }
-
-  /**
-   * Creates a function that invokes two functions and ignores their return vales.
-   *
-   * @param {function} one Function to invoke first.
-   * @param {function} two Function to invoke second.
-   * @return {function} Function that invokes the two argument functions.
-   * @private
-   */
-  function createChainedFunction(one, two) {
-    return function chainedFunction() {
-      one.apply(this, arguments);
-      two.apply(this, arguments);
-    };
-  }
-
-  /**
-   * Binds a method to the component.
-   *
-   * @param {object} component Component whose method is going to be bound.
-   * @param {function} method Method to be bound.
-   * @return {function} The bound method.
-   */
-  function bindAutoBindMethod(component, method) {
-    var boundMethod = method.bind(component);
-    if (false) {
-      boundMethod.__reactBoundContext = component;
-      boundMethod.__reactBoundMethod = method;
-      boundMethod.__reactBoundArguments = null;
-      var componentName = component.constructor.displayName;
-      var _bind = boundMethod.bind;
-      boundMethod.bind = function(newThis) {
-        for (
-          var _len = arguments.length,
-            args = Array(_len > 1 ? _len - 1 : 0),
-            _key = 1;
-          _key < _len;
-          _key++
-        ) {
-          args[_key - 1] = arguments[_key];
-        }
-
-        // User is trying to bind() an autobound method; we effectively will
-        // ignore the value of "this" that the user is trying to use, so
-        // let's warn.
-        if (newThis !== component && newThis !== null) {
-          if (process.env.NODE_ENV !== 'production') {
-            warning(
-              false,
-              'bind(): React component methods may only be bound to the ' +
-                'component instance. See %s',
-              componentName
-            );
-          }
-        } else if (!args.length) {
-          if (process.env.NODE_ENV !== 'production') {
-            warning(
-              false,
-              'bind(): You are binding a component method to the component. ' +
-                'React does this for you automatically in a high-performance ' +
-                'way, so you can safely remove this call. See %s',
-              componentName
-            );
-          }
-          return boundMethod;
-        }
-        var reboundMethod = _bind.apply(boundMethod, arguments);
-        reboundMethod.__reactBoundContext = component;
-        reboundMethod.__reactBoundMethod = method;
-        reboundMethod.__reactBoundArguments = args;
-        return reboundMethod;
-      };
-    }
-    return boundMethod;
-  }
-
-  /**
-   * Binds all auto-bound methods in a component.
-   *
-   * @param {object} component Component whose method is going to be bound.
-   */
-  function bindAutoBindMethods(component) {
-    var pairs = component.__reactAutoBindPairs;
-    for (var i = 0; i < pairs.length; i += 2) {
-      var autoBindKey = pairs[i];
-      var method = pairs[i + 1];
-      component[autoBindKey] = bindAutoBindMethod(component, method);
-    }
-  }
-
-  var IsMountedPreMixin = {
-    componentDidMount: function() {
-      this.__isMounted = true;
-    }
-  };
-
-  var IsMountedPostMixin = {
-    componentWillUnmount: function() {
-      this.__isMounted = false;
-    }
-  };
-
-  /**
-   * Add more to the ReactClass base class. These are all legacy features and
-   * therefore not already part of the modern ReactComponent.
-   */
-  var ReactClassMixin = {
-    /**
-     * TODO: This will be deprecated because state should always keep a consistent
-     * type signature and the only use case for this, is to avoid that.
-     */
-    replaceState: function(newState, callback) {
-      this.updater.enqueueReplaceState(this, newState, callback);
-    },
-
-    /**
-     * Checks whether or not this composite component is mounted.
-     * @return {boolean} True if mounted, false otherwise.
-     * @protected
-     * @final
-     */
-    isMounted: function() {
-      if (false) {
-        warning(
-          this.__didWarnIsMounted,
-          '%s: isMounted is deprecated. Instead, make sure to clean up ' +
-            'subscriptions and pending requests in componentWillUnmount to ' +
-            'prevent memory leaks.',
-          (this.constructor && this.constructor.displayName) ||
-            this.name ||
-            'Component'
-        );
-        this.__didWarnIsMounted = true;
-      }
-      return !!this.__isMounted;
-    }
-  };
-
-  var ReactClassComponent = function() {};
-  _assign(
-    ReactClassComponent.prototype,
-    ReactComponent.prototype,
-    ReactClassMixin
-  );
-
-  /**
-   * Creates a composite component class given a class specification.
-   * See https://facebook.github.io/react/docs/top-level-api.html#react.createclass
-   *
-   * @param {object} spec Class specification (which must define `render`).
-   * @return {function} Component constructor function.
-   * @public
-   */
-  function createClass(spec) {
-    // To keep our warnings more understandable, we'll use a little hack here to
-    // ensure that Constructor.name !== 'Constructor'. This makes sure we don't
-    // unnecessarily identify a class without displayName as 'Constructor'.
-    var Constructor = identity(function(props, context, updater) {
-      // This constructor gets overridden by mocks. The argument is used
-      // by mocks to assert on what gets mounted.
-
-      if (false) {
-        warning(
-          this instanceof Constructor,
-          'Something is calling a React component directly. Use a factory or ' +
-            'JSX instead. See: https://fb.me/react-legacyfactory'
-        );
-      }
-
-      // Wire up auto-binding
-      if (this.__reactAutoBindPairs.length) {
-        bindAutoBindMethods(this);
-      }
-
-      this.props = props;
-      this.context = context;
-      this.refs = emptyObject;
-      this.updater = updater || ReactNoopUpdateQueue;
-
-      this.state = null;
-
-      // ReactClasses doesn't have constructors. Instead, they use the
-      // getInitialState and componentWillMount methods for initialization.
-
-      var initialState = this.getInitialState ? this.getInitialState() : null;
-      if (false) {
-        // We allow auto-mocks to proceed as if they're returning null.
-        if (
-          initialState === undefined &&
-          this.getInitialState._isMockFunction
-        ) {
-          // This is probably bad practice. Consider warning here and
-          // deprecating this convenience.
-          initialState = null;
-        }
-      }
-      _invariant(
-        typeof initialState === 'object' && !Array.isArray(initialState),
-        '%s.getInitialState(): must return an object or null',
-        Constructor.displayName || 'ReactCompositeComponent'
-      );
-
-      this.state = initialState;
-    });
-    Constructor.prototype = new ReactClassComponent();
-    Constructor.prototype.constructor = Constructor;
-    Constructor.prototype.__reactAutoBindPairs = [];
-
-    injectedMixins.forEach(mixSpecIntoComponent.bind(null, Constructor));
-
-    mixSpecIntoComponent(Constructor, IsMountedPreMixin);
-    mixSpecIntoComponent(Constructor, spec);
-    mixSpecIntoComponent(Constructor, IsMountedPostMixin);
-
-    // Initialize the defaultProps property after all mixins have been merged.
-    if (Constructor.getDefaultProps) {
-      Constructor.defaultProps = Constructor.getDefaultProps();
-    }
-
-    if (false) {
-      // This is a tag to indicate that the use of these method names is ok,
-      // since it's used with createClass. If it's not, then it's likely a
-      // mistake so we'll warn you to use the static property, property
-      // initializer or constructor respectively.
-      if (Constructor.getDefaultProps) {
-        Constructor.getDefaultProps.isReactClassApproved = {};
-      }
-      if (Constructor.prototype.getInitialState) {
-        Constructor.prototype.getInitialState.isReactClassApproved = {};
-      }
-    }
-
-    _invariant(
-      Constructor.prototype.render,
-      'createClass(...): Class specification must implement a `render` method.'
-    );
-
-    if (false) {
-      warning(
-        !Constructor.prototype.componentShouldUpdate,
-        '%s has a method called ' +
-          'componentShouldUpdate(). Did you mean shouldComponentUpdate()? ' +
-          'The name is phrased as a question because the function is ' +
-          'expected to return a value.',
-        spec.displayName || 'A component'
-      );
-      warning(
-        !Constructor.prototype.componentWillRecieveProps,
-        '%s has a method called ' +
-          'componentWillRecieveProps(). Did you mean componentWillReceiveProps()?',
-        spec.displayName || 'A component'
-      );
-      warning(
-        !Constructor.prototype.UNSAFE_componentWillRecieveProps,
-        '%s has a method called UNSAFE_componentWillRecieveProps(). ' +
-          'Did you mean UNSAFE_componentWillReceiveProps()?',
-        spec.displayName || 'A component'
-      );
-    }
-
-    // Reduce time spent doing lookups by setting these on the prototype.
-    for (var methodName in ReactClassInterface) {
-      if (!Constructor.prototype[methodName]) {
-        Constructor.prototype[methodName] = null;
-      }
-    }
-
-    return Constructor;
-  }
-
-  return createClass;
-}
-
-module.exports = factory;
-
-
-/***/ }),
-
 /***/ "mduf":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -26539,6 +25569,10 @@ var button_style_default = /*#__PURE__*/__webpack_require__.n(button_style);
 // EXTERNAL MODULE: ../node_modules/babel-runtime/helpers/extends.js
 var helpers_extends = __webpack_require__("T4f3");
 var extends_default = /*#__PURE__*/__webpack_require__.n(helpers_extends);
+
+// EXTERNAL MODULE: ../node_modules/babel-runtime/helpers/defineProperty.js
+var defineProperty = __webpack_require__("Xos8");
+var defineProperty_default = /*#__PURE__*/__webpack_require__.n(defineProperty);
 
 // EXTERNAL MODULE: ../node_modules/babel-runtime/helpers/classCallCheck.js
 var classCallCheck = __webpack_require__("dACh");
@@ -27095,10 +26129,6 @@ function contains(root, n) {
 
   return false;
 }
-// EXTERNAL MODULE: ../node_modules/babel-runtime/helpers/defineProperty.js
-var defineProperty = __webpack_require__("Xos8");
-var defineProperty_default = /*#__PURE__*/__webpack_require__.n(defineProperty);
-
 // EXTERNAL MODULE: ../node_modules/prop-types/index.js
 var prop_types = __webpack_require__("5D9O");
 var prop_types_default = /*#__PURE__*/__webpack_require__.n(prop_types);
@@ -28157,7 +27187,7 @@ var Dialog_Dialog = function (_React$Component) {
             }
             var closer = void 0;
             if (closable) {
-                closer = react["createElement"]("button", { onClick: _this.close, "aria-label": "Close", className: prefixCls + '-close' }, react["createElement"]("span", { className: prefixCls + '-close-x' }));
+                closer = react["createElement"]("button", { onClick: _this.close, "aria-label": "Close", className: prefixCls + '-close' }, props.closeIcon || react["createElement"]("span", { className: prefixCls + '-close-x' }));
             }
             var style = extends_default()({}, props.style, dest);
             var transitionName = _this.getTransitionName();
@@ -28622,6 +27652,10 @@ DialogWrap_DialogWrap.defaultProps = {
     visible: false
 };
 /* harmony default export */ var es_DialogWrap = (DialogWrap_DialogWrap);
+// EXTERNAL MODULE: ../node_modules/classnames/index.js
+var classnames = __webpack_require__("9qb7");
+var classnames_default = /*#__PURE__*/__webpack_require__.n(classnames);
+
 // EXTERNAL MODULE: ../node_modules/add-dom-event-listener/lib/index.js
 var lib = __webpack_require__("Q38I");
 var lib_default = /*#__PURE__*/__webpack_require__.n(lib);
@@ -28637,10 +27671,6 @@ function addEventListenerWrap(target, eventType, cb) {
   } : cb;
   return lib_default()(target, eventType, callback);
 }
-// EXTERNAL MODULE: ../node_modules/classnames/index.js
-var classnames = __webpack_require__("9qb7");
-var classnames_default = /*#__PURE__*/__webpack_require__.n(classnames);
-
 // CONCATENATED MODULE: ../node_modules/omit.js/es/index.js
 
 function omit(obj, fields) {
@@ -28830,7 +27860,8 @@ var button_Button = function (_React$Component) {
                 prefixCls = _a.prefixCls,
                 ghost = _a.ghost,
                 _loadingProp = _a.loading,
-                rest = __rest(_a, ["type", "shape", "size", "className", "children", "icon", "prefixCls", "ghost", "loading"]);var _state = this.state,
+                block = _a.block,
+                rest = __rest(_a, ["type", "shape", "size", "className", "children", "icon", "prefixCls", "ghost", "loading", "block"]);var _state = this.state,
                 loading = _state.loading,
                 clicked = _state.clicked,
                 hasTwoCNChar = _state.hasTwoCNChar;
@@ -28847,7 +27878,7 @@ var button_Button = function (_React$Component) {
                 default:
                     break;
             }
-            var classes = classnames_default()(prefixCls, className, (_classNames = {}, defineProperty_default()(_classNames, prefixCls + '-' + type, type), defineProperty_default()(_classNames, prefixCls + '-' + shape, shape), defineProperty_default()(_classNames, prefixCls + '-' + sizeCls, sizeCls), defineProperty_default()(_classNames, prefixCls + '-icon-only', !children && icon), defineProperty_default()(_classNames, prefixCls + '-loading', loading), defineProperty_default()(_classNames, prefixCls + '-clicked', clicked), defineProperty_default()(_classNames, prefixCls + '-background-ghost', ghost), defineProperty_default()(_classNames, prefixCls + '-two-chinese-chars', hasTwoCNChar), _classNames));
+            var classes = classnames_default()(prefixCls, className, (_classNames = {}, defineProperty_default()(_classNames, prefixCls + '-' + type, type), defineProperty_default()(_classNames, prefixCls + '-' + shape, shape), defineProperty_default()(_classNames, prefixCls + '-' + sizeCls, sizeCls), defineProperty_default()(_classNames, prefixCls + '-icon-only', !children && icon), defineProperty_default()(_classNames, prefixCls + '-loading', loading), defineProperty_default()(_classNames, prefixCls + '-clicked', clicked), defineProperty_default()(_classNames, prefixCls + '-background-ghost', ghost), defineProperty_default()(_classNames, prefixCls + '-two-chinese-chars', hasTwoCNChar), defineProperty_default()(_classNames, prefixCls + '-block', block), _classNames));
             var iconType = loading ? 'loading' : icon;
             var iconNode = iconType ? react["createElement"](es_icon, { type: iconType }) : null;
             var kids = children || children === 0 ? react["Children"].map(children, function (child) {
@@ -28883,7 +27914,8 @@ button_Button.__ANT_BUTTON = true;
 button_Button.defaultProps = {
     prefixCls: 'ant-btn',
     loading: false,
-    ghost: false
+    ghost: false,
+    block: false
 };
 button_Button.propTypes = {
     type: prop_types_default.a.string,
@@ -28893,7 +27925,8 @@ button_Button.propTypes = {
     onClick: prop_types_default.a.func,
     loading: prop_types_default.a.oneOfType([prop_types_default.a.bool, prop_types_default.a.object]),
     className: prop_types_default.a.string,
-    icon: prop_types_default.a.string
+    icon: prop_types_default.a.string,
+    block: prop_types_default.a.bool
 };
 // CONCATENATED MODULE: ../node_modules/antd/es/button/button-group.js
 
@@ -29124,6 +28157,16 @@ function getConfirmLocale() {
 
 
 
+var Modal___rest = this && this.__rest || function (s, e) {
+    var t = {};
+    for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+    }if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+        if (e.indexOf(p[i]) < 0) t[p[i]] = s[p[i]];
+    }return t;
+};
+
+
 
 
 
@@ -29202,16 +28245,19 @@ var Modal_Modal = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _props = this.props,
-                footer = _props.footer,
-                visible = _props.visible;
-
+            var _a = this.props,
+                footer = _a.footer,
+                visible = _a.visible,
+                wrapClassName = _a.wrapClassName,
+                centered = _a.centered,
+                prefixCls = _a.prefixCls,
+                restProps = Modal___rest(_a, ["footer", "visible", "wrapClassName", "centered", "prefixCls"]);
             var defaultFooter = react["createElement"](
                 locale_provider_LocaleReceiver,
                 { componentName: 'Modal', defaultLocale: getConfirmLocale() },
                 this.renderFooter
             );
-            return react["createElement"](es_DialogWrap, extends_default()({}, this.props, { footer: footer === undefined ? defaultFooter : footer, visible: visible, mousePosition: Modal_mousePosition, onClose: this.handleCancel }));
+            return react["createElement"](es_DialogWrap, extends_default()({}, restProps, { prefixCls: prefixCls, wrapClassName: classnames_default()(defineProperty_default()({}, prefixCls + '-centered', !!centered), wrapClassName), footer: footer === undefined ? defaultFooter : footer, visible: visible, mousePosition: Modal_mousePosition, onClose: this.handleCancel }));
         }
     }]);
 
@@ -29237,6 +28283,7 @@ Modal_Modal.propTypes = {
     onCancel: prop_types_default.a.func,
     okText: prop_types_default.a.node,
     cancelText: prop_types_default.a.node,
+    centered: prop_types_default.a.bool,
     width: prop_types_default.a.oneOfType([prop_types_default.a.number, prop_types_default.a.string]),
     confirmLoading: prop_types_default.a.bool,
     visible: prop_types_default.a.bool,
@@ -29336,6 +28383,7 @@ var ActionButton_ActionButton = function (_React$Component) {
 // CONCATENATED MODULE: ../node_modules/antd/es/modal/confirm.js
 
 
+
 var confirm__this = this;
 
 
@@ -29375,7 +28423,7 @@ var confirm_ConfirmDialog = function ConfirmDialog(props) {
     );
     return react["createElement"](
         modal_Modal,
-        { className: classString, onCancel: close.bind(confirm__this, { triggerCancel: true }), visible: visible, title: '', transitionName: 'zoom', footer: '', maskTransitionName: 'fade', maskClosable: maskClosable, style: style, width: width, zIndex: zIndex, afterClose: afterClose, keyboard: keyboard },
+        { className: classString, wrapClassName: classnames_default()(defineProperty_default()({}, prefixCls + '-centered', !!props.centered)), onCancel: close.bind(confirm__this, { triggerCancel: true }), visible: visible, title: '', transitionName: 'zoom', footer: '', maskTransitionName: 'fade', maskClosable: maskClosable, style: style, width: width, zIndex: zIndex, afterClose: afterClose, keyboard: keyboard },
         react["createElement"](
             'div',
             { className: prefixCls + '-body-wrapper' },
@@ -29581,10 +28629,6 @@ var objectWithoutProperties_default = /*#__PURE__*/__webpack_require__.n(objectW
    */
   DOWN: 40 // also NUM_SOUTH
 });
-// EXTERNAL MODULE: ../node_modules/create-react-class/index.js
-var create_react_class = __webpack_require__("IAnx");
-var create_react_class_default = /*#__PURE__*/__webpack_require__.n(create_react_class);
-
 // CONCATENATED MODULE: ../node_modules/rc-tabs/es/utils.js
 
 
@@ -29679,51 +28723,71 @@ function getDataAttr(props) {
 
 
 
-var TabPane = create_react_class_default()({
-  displayName: 'TabPane',
-  propTypes: {
-    className: prop_types_default.a.string,
-    active: prop_types_default.a.bool,
-    style: prop_types_default.a.any,
-    destroyInactiveTabPane: prop_types_default.a.bool,
-    forceRender: prop_types_default.a.bool,
-    placeholder: prop_types_default.a.node
-  },
-  getDefaultProps: function getDefaultProps() {
-    return { placeholder: null };
-  },
-  render: function render() {
-    var _classnames;
 
-    var _props = this.props,
-        className = _props.className,
-        destroyInactiveTabPane = _props.destroyInactiveTabPane,
-        active = _props.active,
-        forceRender = _props.forceRender,
-        rootPrefixCls = _props.rootPrefixCls,
-        style = _props.style,
-        children = _props.children,
-        placeholder = _props.placeholder,
-        restProps = objectWithoutProperties_default()(_props, ['className', 'destroyInactiveTabPane', 'active', 'forceRender', 'rootPrefixCls', 'style', 'children', 'placeholder']);
 
-    this._isActived = this._isActived || active;
-    var prefixCls = rootPrefixCls + '-tabpane';
-    var cls = classnames_default()((_classnames = {}, defineProperty_default()(_classnames, prefixCls, 1), defineProperty_default()(_classnames, prefixCls + '-inactive', !active), defineProperty_default()(_classnames, prefixCls + '-active', active), defineProperty_default()(_classnames, className, className), _classnames));
-    var isRender = destroyInactiveTabPane ? active : this._isActived;
-    return react_default.a.createElement(
-      'div',
-      extends_default()({
-        style: style,
-        role: 'tabpanel',
-        'aria-hidden': active ? 'false' : 'true',
-        className: cls
-      }, getDataAttr(restProps)),
-      isRender || forceRender ? children : placeholder
-    );
+
+var TabPane_TabPane = function (_React$Component) {
+  inherits_default()(TabPane, _React$Component);
+
+  function TabPane() {
+    classCallCheck_default()(this, TabPane);
+
+    return possibleConstructorReturn_default()(this, (TabPane.__proto__ || Object.getPrototypeOf(TabPane)).apply(this, arguments));
   }
-});
 
-/* harmony default export */ var es_TabPane = (TabPane);
+  createClass_default()(TabPane, [{
+    key: 'render',
+    value: function render() {
+      var _classnames;
+
+      var _props = this.props,
+          className = _props.className,
+          destroyInactiveTabPane = _props.destroyInactiveTabPane,
+          active = _props.active,
+          forceRender = _props.forceRender,
+          rootPrefixCls = _props.rootPrefixCls,
+          style = _props.style,
+          children = _props.children,
+          placeholder = _props.placeholder,
+          restProps = objectWithoutProperties_default()(_props, ['className', 'destroyInactiveTabPane', 'active', 'forceRender', 'rootPrefixCls', 'style', 'children', 'placeholder']);
+
+      this._isActived = this._isActived || active;
+      var prefixCls = rootPrefixCls + '-tabpane';
+      var cls = classnames_default()((_classnames = {}, defineProperty_default()(_classnames, prefixCls, 1), defineProperty_default()(_classnames, prefixCls + '-inactive', !active), defineProperty_default()(_classnames, prefixCls + '-active', active), defineProperty_default()(_classnames, className, className), _classnames));
+      var isRender = destroyInactiveTabPane ? active : this._isActived;
+      return react_default.a.createElement(
+        'div',
+        extends_default()({
+          style: style,
+          role: 'tabpanel',
+          'aria-hidden': active ? 'false' : 'true',
+          className: cls
+        }, getDataAttr(restProps)),
+        isRender || forceRender ? children : placeholder
+      );
+    }
+  }]);
+
+  return TabPane;
+}(react_default.a.Component);
+
+/* harmony default export */ var es_TabPane = (TabPane_TabPane);
+
+
+TabPane_TabPane.propTypes = {
+  className: prop_types_default.a.string,
+  active: prop_types_default.a.bool,
+  style: prop_types_default.a.any,
+  destroyInactiveTabPane: prop_types_default.a.bool,
+  forceRender: prop_types_default.a.bool,
+  placeholder: prop_types_default.a.node,
+  rootPrefixCls: prop_types_default.a.string,
+  children: prop_types_default.a.node
+};
+
+TabPane_TabPane.defaultProps = {
+  placeholder: null
+};
 // CONCATENATED MODULE: ../node_modules/rc-tabs/es/Tabs.js
 
 
@@ -29921,7 +28985,7 @@ Tabs_Tabs.propTypes = {
   renderTabContent: prop_types_default.a.func.isRequired,
   navWrapper: prop_types_default.a.func,
   onChange: prop_types_default.a.func,
-  children: prop_types_default.a.any,
+  children: prop_types_default.a.node,
   prefixCls: prop_types_default.a.string,
   className: prop_types_default.a.string,
   tabBarPosition: prop_types_default.a.string,
@@ -29938,6 +29002,7 @@ Tabs_Tabs.defaultProps = {
     return arg;
   },
   tabBarPosition: 'top',
+  children: null,
   style: {}
 };
 
@@ -29951,79 +29016,97 @@ Tabs_Tabs.TabPane = es_TabPane;
 
 
 
-var TabContent = create_react_class_default()({
-  displayName: 'TabContent',
-  propTypes: {
-    animated: prop_types_default.a.bool,
-    animatedWithMargin: prop_types_default.a.bool,
-    prefixCls: prop_types_default.a.string,
-    children: prop_types_default.a.any,
-    activeKey: prop_types_default.a.string,
-    style: prop_types_default.a.any,
-    tabBarPosition: prop_types_default.a.string
-  },
-  getDefaultProps: function getDefaultProps() {
-    return {
-      animated: true
-    };
-  },
-  getTabPanes: function getTabPanes() {
-    var props = this.props;
-    var activeKey = props.activeKey;
-    var children = props.children;
-    var newChildren = [];
 
-    react_default.a.Children.forEach(children, function (child) {
-      if (!child) {
-        return;
-      }
-      var key = child.key;
-      var active = activeKey === key;
-      newChildren.push(react_default.a.cloneElement(child, {
-        active: active,
-        destroyInactiveTabPane: props.destroyInactiveTabPane,
-        rootPrefixCls: props.prefixCls
-      }));
-    });
 
-    return newChildren;
-  },
-  render: function render() {
-    var _classnames;
 
-    var props = this.props;
-    var prefixCls = props.prefixCls,
-        children = props.children,
-        activeKey = props.activeKey,
-        tabBarPosition = props.tabBarPosition,
-        animated = props.animated,
-        animatedWithMargin = props.animatedWithMargin;
-    var style = props.style;
+var TabContent_TabContent = function (_React$Component) {
+  inherits_default()(TabContent, _React$Component);
 
-    var classes = classnames_default()((_classnames = {}, defineProperty_default()(_classnames, prefixCls + '-content', true), defineProperty_default()(_classnames, animated ? prefixCls + '-content-animated' : prefixCls + '-content-no-animated', true), _classnames));
-    if (animated) {
-      var activeIndex = getActiveIndex(children, activeKey);
-      if (activeIndex !== -1) {
-        var animatedStyle = animatedWithMargin ? getMarginStyle(activeIndex, tabBarPosition) : getTransformPropValue(getTransformByIndex(activeIndex, tabBarPosition));
-        style = extends_default()({}, style, animatedStyle);
-      } else {
-        style = extends_default()({}, style, {
-          display: 'none'
-        });
-      }
-    }
-    return react_default.a.createElement(
-      'div',
-      {
-        className: classes,
-        style: style
-      },
-      this.getTabPanes()
-    );
+  function TabContent() {
+    classCallCheck_default()(this, TabContent);
+
+    return possibleConstructorReturn_default()(this, (TabContent.__proto__ || Object.getPrototypeOf(TabContent)).apply(this, arguments));
   }
-});
 
-/* harmony default export */ var es_TabContent = (TabContent);
+  createClass_default()(TabContent, [{
+    key: 'getTabPanes',
+    value: function getTabPanes() {
+      var props = this.props;
+      var activeKey = props.activeKey;
+      var children = props.children;
+      var newChildren = [];
+
+      react_default.a.Children.forEach(children, function (child) {
+        if (!child) {
+          return;
+        }
+        var key = child.key;
+        var active = activeKey === key;
+        newChildren.push(react_default.a.cloneElement(child, {
+          active: active,
+          destroyInactiveTabPane: props.destroyInactiveTabPane,
+          rootPrefixCls: props.prefixCls
+        }));
+      });
+
+      return newChildren;
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _classnames;
+
+      var props = this.props;
+      var prefixCls = props.prefixCls,
+          children = props.children,
+          activeKey = props.activeKey,
+          tabBarPosition = props.tabBarPosition,
+          animated = props.animated,
+          animatedWithMargin = props.animatedWithMargin;
+      var style = props.style;
+
+      var classes = classnames_default()((_classnames = {}, defineProperty_default()(_classnames, prefixCls + '-content', true), defineProperty_default()(_classnames, animated ? prefixCls + '-content-animated' : prefixCls + '-content-no-animated', true), _classnames));
+      if (animated) {
+        var activeIndex = getActiveIndex(children, activeKey);
+        if (activeIndex !== -1) {
+          var animatedStyle = animatedWithMargin ? getMarginStyle(activeIndex, tabBarPosition) : getTransformPropValue(getTransformByIndex(activeIndex, tabBarPosition));
+          style = extends_default()({}, style, animatedStyle);
+        } else {
+          style = extends_default()({}, style, {
+            display: 'none'
+          });
+        }
+      }
+      return react_default.a.createElement(
+        'div',
+        {
+          className: classes,
+          style: style
+        },
+        this.getTabPanes()
+      );
+    }
+  }]);
+
+  return TabContent;
+}(react_default.a.Component);
+
+/* harmony default export */ var es_TabContent = (TabContent_TabContent);
+
+
+TabContent_TabContent.propTypes = {
+  animated: prop_types_default.a.bool,
+  animatedWithMargin: prop_types_default.a.bool,
+  prefixCls: prop_types_default.a.string,
+  children: prop_types_default.a.node,
+  activeKey: prop_types_default.a.string,
+  style: prop_types_default.a.any,
+  tabBarPosition: prop_types_default.a.string
+};
+
+TabContent_TabContent.defaultProps = {
+  animated: true
+};
 // CONCATENATED MODULE: ../node_modules/rc-tabs/es/index.js
 
 
@@ -30031,15 +29114,18 @@ var TabContent = create_react_class_default()({
 
 /* harmony default export */ var rc_tabs_es = (es_Tabs);
 
-// CONCATENATED MODULE: ../node_modules/rc-tabs/es/InkTabBarMixin.js
+// CONCATENATED MODULE: ../node_modules/rc-tabs/es/InkTabBarNode.js
 
 
 
 
 
-var isDev = "production" !== 'production';
 
-function InkTabBarMixin_getScroll(w, top) {
+
+
+
+
+function InkTabBarNode_getScroll(w, top) {
   var ret = w['page' + (top ? 'Y' : 'X') + 'Offset'];
   var method = 'scroll' + (top ? 'Top' : 'Left');
   if (typeof ret !== 'number') {
@@ -30054,7 +29140,7 @@ function InkTabBarMixin_getScroll(w, top) {
   return ret;
 }
 
-function InkTabBarMixin_offset(elem) {
+function InkTabBarNode_offset(elem) {
   var box = void 0;
   var x = void 0;
   var y = void 0;
@@ -30067,8 +29153,8 @@ function InkTabBarMixin_offset(elem) {
   x -= docElem.clientLeft || body.clientLeft || 0;
   y -= docElem.clientTop || body.clientTop || 0;
   var w = doc.defaultView || doc.parentWindow;
-  x += InkTabBarMixin_getScroll(w);
-  y += InkTabBarMixin_getScroll(w, true);
+  x += InkTabBarNode_getScroll(w);
+  y += InkTabBarNode_getScroll(w, true);
   return {
     left: x, top: y
   };
@@ -30077,11 +29163,11 @@ function InkTabBarMixin_offset(elem) {
 function _componentDidUpdate(component, init) {
   var styles = component.props.styles;
 
-  var rootNode = component.root;
-  var wrapNode = component.nav || rootNode;
-  var containerOffset = InkTabBarMixin_offset(wrapNode);
-  var inkBarNode = component.inkBar;
-  var activeTab = component.activeTab;
+  var rootNode = component.props.getRef('root');
+  var wrapNode = component.props.getRef('nav') || rootNode;
+  var containerOffset = InkTabBarNode_offset(wrapNode);
+  var inkBarNode = component.props.getRef('inkBar');
+  var activeTab = component.props.getRef('activeTab');
   var inkBarNodeStyle = inkBarNode.style;
   var tabBarPosition = component.props.tabBarPosition;
   if (init) {
@@ -30090,7 +29176,7 @@ function _componentDidUpdate(component, init) {
   }
   if (activeTab) {
     var tabNode = activeTab;
-    var tabOffset = InkTabBarMixin_offset(tabNode);
+    var tabOffset = InkTabBarNode_offset(tabNode);
     var transformSupported = isTransformSupported(inkBarNodeStyle);
     if (tabBarPosition === 'top' || tabBarPosition === 'bottom') {
       var left = tabOffset.left - containerOffset.left;
@@ -30142,354 +29228,85 @@ function _componentDidUpdate(component, init) {
   inkBarNodeStyle.display = activeTab ? 'block' : 'none';
 }
 
-/* harmony default export */ var InkTabBarMixin = ({
-  getDefaultProps: function getDefaultProps() {
-    return {
-      inkBarAnimated: true
-    };
-  },
-  componentDidUpdate: function componentDidUpdate() {
-    _componentDidUpdate(this);
-  },
-  componentDidMount: function componentDidMount() {
-    var _this = this;
+var InkTabBarNode_InkTabBarNode = function (_React$Component) {
+  inherits_default()(InkTabBarNode, _React$Component);
 
-    if (isDev) {
-      // https://github.com/ant-design/ant-design/issues/8678
+  function InkTabBarNode() {
+    classCallCheck_default()(this, InkTabBarNode);
+
+    return possibleConstructorReturn_default()(this, (InkTabBarNode.__proto__ || Object.getPrototypeOf(InkTabBarNode)).apply(this, arguments));
+  }
+
+  createClass_default()(InkTabBarNode, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      // ref https://github.com/ant-design/ant-design/issues/8678
+      // ref https://github.com/react-component/tabs/issues/135
+      // InkTabBarNode need parent/root ref for calculating position
+      // since parent componentDidMount triggered after child componentDidMount
+      // we're doing a quick fix here to use setTimeout to calculate position
+      // after parent/root component mounted
       this.timeout = setTimeout(function () {
-        _componentDidUpdate(_this, true);
+        _componentDidUpdate(_this2, true);
       }, 0);
-    } else {
-      _componentDidUpdate(this, true);
     }
-  },
-  componentWillUnmount: function componentWillUnmount() {
-    clearTimeout(this.timeout);
-  },
-  getInkBarNode: function getInkBarNode() {
-    var _classnames;
-
-    var _props = this.props,
-        prefixCls = _props.prefixCls,
-        styles = _props.styles,
-        inkBarAnimated = _props.inkBarAnimated;
-
-    var className = prefixCls + '-ink-bar';
-    var classes = classnames_default()((_classnames = {}, defineProperty_default()(_classnames, className, true), defineProperty_default()(_classnames, inkBarAnimated ? className + '-animated' : className + '-no-animated', true), _classnames));
-    return react_default.a.createElement('div', {
-      style: styles.inkBar,
-      className: classes,
-      key: 'inkBar',
-      ref: this.saveRef('inkBar')
-    });
-  }
-});
-// EXTERNAL MODULE: ../node_modules/lodash/debounce.js
-var debounce = __webpack_require__("CXfR");
-var debounce_default = /*#__PURE__*/__webpack_require__.n(debounce);
-
-// CONCATENATED MODULE: ../node_modules/rc-tabs/es/ScrollableTabBarMixin.js
-
-
-
-
-
-
-
-/* harmony default export */ var ScrollableTabBarMixin = ({
-  getDefaultProps: function getDefaultProps() {
-    return {
-      scrollAnimated: true,
-      onPrevClick: function onPrevClick() {},
-      onNextClick: function onNextClick() {}
-    };
-  },
-  getInitialState: function getInitialState() {
-    this.offset = 0;
-    return {
-      next: false,
-      prev: false
-    };
-  },
-  componentDidMount: function componentDidMount() {
-    var _this = this;
-
-    this.componentDidUpdate();
-    this.debouncedResize = debounce_default()(function () {
-      _this.setNextPrev();
-      _this.scrollToActiveTab();
-    }, 200);
-    this.resizeEvent = addEventListenerWrap(window, 'resize', this.debouncedResize);
-  },
-  componentDidUpdate: function componentDidUpdate(prevProps) {
-    var props = this.props;
-    if (prevProps && prevProps.tabBarPosition !== props.tabBarPosition) {
-      this.setOffset(0);
-      return;
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate() {
+      _componentDidUpdate(this);
     }
-    var nextPrev = this.setNextPrev();
-        
-    if (this.isNextPrevShown(this.state) !== this.isNextPrevShown(nextPrev)) {
-      this.setState({}, this.scrollToActiveTab);
-    } else if (!prevProps || props.activeKey !== prevProps.activeKey) {
-            this.scrollToActiveTab();
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      clearTimeout(this.timeout);
     }
-  },
-  componentWillUnmount: function componentWillUnmount() {
-    if (this.resizeEvent) {
-      this.resizeEvent.remove();
-    }
-    if (this.debouncedResize && this.debouncedResize.cancel) {
-      this.debouncedResize.cancel();
-    }
-  },
-  setNextPrev: function setNextPrev() {
-    var navNode = this.nav;
-    var navNodeWH = this.getScrollWH(navNode);
-    var containerWH = this.getOffsetWH(this.container);
-    var navWrapNodeWH = this.getOffsetWH(this.navWrap);
-    var offset = this.offset;
+  }, {
+    key: 'render',
+    value: function render() {
+      var _classnames;
 
-    var minOffset = containerWH - navNodeWH;
-    var _state = this.state,
-        next = _state.next,
-        prev = _state.prev;
+      var _props = this.props,
+          prefixCls = _props.prefixCls,
+          styles = _props.styles,
+          inkBarAnimated = _props.inkBarAnimated;
 
-    if (minOffset >= 0) {
-      next = false;
-      this.setOffset(0, false);
-      offset = 0;
-    } else if (minOffset < offset) {
-      next = true;
-    } else {
-      next = false;
-                        var realOffset = navWrapNodeWH - navNodeWH;
-      this.setOffset(realOffset, false);
-      offset = realOffset;
-    }
-
-    if (offset < 0) {
-      prev = true;
-    } else {
-      prev = false;
-    }
-
-    this.setNext(next);
-    this.setPrev(prev);
-    return {
-      next: next,
-      prev: prev
-    };
-  },
-  getOffsetWH: function getOffsetWH(node) {
-    var tabBarPosition = this.props.tabBarPosition;
-    var prop = 'offsetWidth';
-    if (tabBarPosition === 'left' || tabBarPosition === 'right') {
-      prop = 'offsetHeight';
-    }
-    return node[prop];
-  },
-  getScrollWH: function getScrollWH(node) {
-    var tabBarPosition = this.props.tabBarPosition;
-    var prop = 'scrollWidth';
-    if (tabBarPosition === 'left' || tabBarPosition === 'right') {
-      prop = 'scrollHeight';
-    }
-    return node[prop];
-  },
-  getOffsetLT: function getOffsetLT(node) {
-    var tabBarPosition = this.props.tabBarPosition;
-    var prop = 'left';
-    if (tabBarPosition === 'left' || tabBarPosition === 'right') {
-      prop = 'top';
-    }
-    return node.getBoundingClientRect()[prop];
-  },
-  setOffset: function setOffset(offset) {
-    var checkNextPrev = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-    var target = Math.min(0, offset);
-    if (this.offset !== target) {
-      this.offset = target;
-      var navOffset = {};
-      var tabBarPosition = this.props.tabBarPosition;
-      var navStyle = this.nav.style;
-      var transformSupported = isTransformSupported(navStyle);
-      if (tabBarPosition === 'left' || tabBarPosition === 'right') {
-        if (transformSupported) {
-          navOffset = {
-            value: 'translate3d(0,' + target + 'px,0)'
-          };
-        } else {
-          navOffset = {
-            name: 'top',
-            value: target + 'px'
-          };
-        }
-      } else {
-        if (transformSupported) {
-          navOffset = {
-            value: 'translate3d(' + target + 'px,0,0)'
-          };
-        } else {
-          navOffset = {
-            name: 'left',
-            value: target + 'px'
-          };
-        }
-      }
-      if (transformSupported) {
-        setTransform(navStyle, navOffset.value);
-      } else {
-        navStyle[navOffset.name] = navOffset.value;
-      }
-      if (checkNextPrev) {
-        this.setNextPrev();
-      }
-    }
-  },
-  setPrev: function setPrev(v) {
-    if (this.state.prev !== v) {
-      this.setState({
-        prev: v
+      var className = prefixCls + '-ink-bar';
+      var classes = classnames_default()((_classnames = {}, defineProperty_default()(_classnames, className, true), defineProperty_default()(_classnames, inkBarAnimated ? className + '-animated' : className + '-no-animated', true), _classnames));
+      return react_default.a.createElement('div', {
+        style: styles.inkBar,
+        className: classes,
+        key: 'inkBar',
+        ref: this.props.saveRef('inkBar')
       });
     }
-  },
-  setNext: function setNext(v) {
-    if (this.state.next !== v) {
-      this.setState({
-        next: v
-      });
-    }
-  },
-  isNextPrevShown: function isNextPrevShown(state) {
-    if (state) {
-      return state.next || state.prev;
-    }
-    return this.state.next || this.state.prev;
-  },
-  prevTransitionEnd: function prevTransitionEnd(e) {
-    if (e.propertyName !== 'opacity') {
-      return;
-    }
-    var container = this.container;
+  }]);
 
-    this.scrollToActiveTab({
-      target: container,
-      currentTarget: container
-    });
-  },
-  scrollToActiveTab: function scrollToActiveTab(e) {
-    var activeTab = this.activeTab,
-        navWrap = this.navWrap;
+  return InkTabBarNode;
+}(react_default.a.Component);
 
-    if (e && e.target !== e.currentTarget || !activeTab) {
-      return;
-    }
+/* harmony default export */ var es_InkTabBarNode = (InkTabBarNode_InkTabBarNode);
 
-        var needToSroll = this.isNextPrevShown() && this.lastNextPrevShown;
-    this.lastNextPrevShown = this.isNextPrevShown();
-    if (!needToSroll) {
-      return;
-    }
 
-    var activeTabWH = this.getScrollWH(activeTab);
-    var navWrapNodeWH = this.getOffsetWH(navWrap);
-    var offset = this.offset;
+InkTabBarNode_InkTabBarNode.propTypes = {
+  prefixCls: prop_types_default.a.string,
+  styles: prop_types_default.a.object,
+  inkBarAnimated: prop_types_default.a.bool,
+  saveRef: prop_types_default.a.func
+};
 
-    var wrapOffset = this.getOffsetLT(navWrap);
-    var activeTabOffset = this.getOffsetLT(activeTab);
-    if (wrapOffset > activeTabOffset) {
-      offset += wrapOffset - activeTabOffset;
-      this.setOffset(offset);
-    } else if (wrapOffset + navWrapNodeWH < activeTabOffset + activeTabWH) {
-      offset -= activeTabOffset + activeTabWH - (wrapOffset + navWrapNodeWH);
-      this.setOffset(offset);
-    }
-  },
-  prev: function prev(e) {
-    this.props.onPrevClick(e);
-    var navWrapNode = this.navWrap;
-    var navWrapNodeWH = this.getOffsetWH(navWrapNode);
-    var offset = this.offset;
-
-    this.setOffset(offset + navWrapNodeWH);
-  },
-  next: function next(e) {
-    this.props.onNextClick(e);
-    var navWrapNode = this.navWrap;
-    var navWrapNodeWH = this.getOffsetWH(navWrapNode);
-    var offset = this.offset;
-
-    this.setOffset(offset - navWrapNodeWH);
-  },
-  getScrollBarNode: function getScrollBarNode(content) {
-    var _classnames, _classnames2, _classnames3, _classnames4;
-
-    var _state2 = this.state,
-        next = _state2.next,
-        prev = _state2.prev;
-    var _props = this.props,
-        prefixCls = _props.prefixCls,
-        scrollAnimated = _props.scrollAnimated,
-        navWrapper = _props.navWrapper;
-
-    var showNextPrev = prev || next;
-
-    var prevButton = react_default.a.createElement(
-      'span',
-      {
-        onClick: prev ? this.prev : null,
-        unselectable: 'unselectable',
-        className: classnames_default()((_classnames = {}, defineProperty_default()(_classnames, prefixCls + '-tab-prev', 1), defineProperty_default()(_classnames, prefixCls + '-tab-btn-disabled', !prev), defineProperty_default()(_classnames, prefixCls + '-tab-arrow-show', showNextPrev), _classnames)),
-        onTransitionEnd: this.prevTransitionEnd
-      },
-      react_default.a.createElement('span', { className: prefixCls + '-tab-prev-icon' })
-    );
-
-    var nextButton = react_default.a.createElement(
-      'span',
-      {
-        onClick: next ? this.next : null,
-        unselectable: 'unselectable',
-        className: classnames_default()((_classnames2 = {}, defineProperty_default()(_classnames2, prefixCls + '-tab-next', 1), defineProperty_default()(_classnames2, prefixCls + '-tab-btn-disabled', !next), defineProperty_default()(_classnames2, prefixCls + '-tab-arrow-show', showNextPrev), _classnames2))
-      },
-      react_default.a.createElement('span', { className: prefixCls + '-tab-next-icon' })
-    );
-
-    var navClassName = prefixCls + '-nav';
-    var navClasses = classnames_default()((_classnames3 = {}, defineProperty_default()(_classnames3, navClassName, true), defineProperty_default()(_classnames3, scrollAnimated ? navClassName + '-animated' : navClassName + '-no-animated', true), _classnames3));
-
-    return react_default.a.createElement(
-      'div',
-      {
-        className: classnames_default()((_classnames4 = {}, defineProperty_default()(_classnames4, prefixCls + '-nav-container', 1), defineProperty_default()(_classnames4, prefixCls + '-nav-container-scrolling', showNextPrev), _classnames4)),
-        key: 'container',
-        ref: this.saveRef('container')
-      },
-      prevButton,
-      nextButton,
-      react_default.a.createElement(
-        'div',
-        { className: prefixCls + '-nav-wrap', ref: this.saveRef('navWrap') },
-        react_default.a.createElement(
-          'div',
-          { className: prefixCls + '-nav-scroll' },
-          react_default.a.createElement(
-            'div',
-            { className: navClasses, ref: this.saveRef('nav') },
-            navWrapper(content)
-          )
-        )
-      )
-    );
-  }
-});
+InkTabBarNode_InkTabBarNode.defaultProps = {
+  prefixCls: '',
+  inkBarAnimated: true,
+  styles: {},
+  saveRef: function saveRef() {}
+};
 // EXTERNAL MODULE: ../node_modules/warning/browser.js
 var browser = __webpack_require__("/sXU");
 var browser_default = /*#__PURE__*/__webpack_require__.n(browser);
 
-// CONCATENATED MODULE: ../node_modules/rc-tabs/es/TabBarMixin.js
+// CONCATENATED MODULE: ../node_modules/rc-tabs/es/TabBarTabsNode.js
 
 
 
@@ -30498,111 +29315,601 @@ var browser_default = /*#__PURE__*/__webpack_require__.n(browser);
 
 
 
-/* harmony default export */ var TabBarMixin = ({
-  getDefaultProps: function getDefaultProps() {
-    return {
-      styles: {}
-    };
-  },
-  onTabClick: function onTabClick(key, e) {
-    this.props.onTabClick(key, e);
-  },
-  getTabs: function getTabs() {
-    var _this = this;
 
-    var _props = this.props,
-        children = _props.panels,
-        activeKey = _props.activeKey,
-        prefixCls = _props.prefixCls,
-        tabBarGutter = _props.tabBarGutter;
+var TabBarTabsNode_TabBarTabsNode = function (_React$Component) {
+  inherits_default()(TabBarTabsNode, _React$Component);
 
-    var rst = [];
+  function TabBarTabsNode() {
+    classCallCheck_default()(this, TabBarTabsNode);
 
-    react_default.a.Children.forEach(children, function (child, index) {
-      if (!child) {
-        return;
+    return possibleConstructorReturn_default()(this, (TabBarTabsNode.__proto__ || Object.getPrototypeOf(TabBarTabsNode)).apply(this, arguments));
+  }
+
+  createClass_default()(TabBarTabsNode, [{
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
+
+      var _props = this.props,
+          children = _props.panels,
+          activeKey = _props.activeKey,
+          prefixCls = _props.prefixCls,
+          tabBarGutter = _props.tabBarGutter;
+
+      var rst = [];
+
+      react_default.a.Children.forEach(children, function (child, index) {
+        if (!child) {
+          return;
+        }
+        var key = child.key;
+        var cls = activeKey === key ? prefixCls + '-tab-active' : '';
+        cls += ' ' + prefixCls + '-tab';
+        var events = {};
+        if (child.props.disabled) {
+          cls += ' ' + prefixCls + '-tab-disabled';
+        } else {
+          events = {
+            onClick: _this2.props.onTabClick.bind(_this2, key)
+          };
+        }
+        var ref = {};
+        if (activeKey === key) {
+          ref.ref = _this2.props.saveRef('activeTab');
+        }
+        browser_default()('tab' in child.props, 'There must be `tab` property on children of Tabs.');
+        rst.push(react_default.a.createElement(
+          'div',
+          extends_default()({
+            role: 'tab',
+            'aria-disabled': child.props.disabled ? 'true' : 'false',
+            'aria-selected': activeKey === key ? 'true' : 'false'
+          }, events, {
+            className: cls,
+            key: key,
+            style: { marginRight: tabBarGutter && index === children.length - 1 ? 0 : tabBarGutter }
+          }, ref),
+          child.props.tab
+        ));
+      });
+
+      return react_default.a.createElement(
+        'div',
+        null,
+        rst
+      );
+    }
+  }]);
+
+  return TabBarTabsNode;
+}(react_default.a.Component);
+
+/* harmony default export */ var es_TabBarTabsNode = (TabBarTabsNode_TabBarTabsNode);
+
+
+TabBarTabsNode_TabBarTabsNode.propTypes = {
+  activeKey: prop_types_default.a.string,
+  panels: prop_types_default.a.node,
+  prefixCls: prop_types_default.a.string,
+  tabBarGutter: prop_types_default.a.number,
+  onTabClick: prop_types_default.a.func,
+  saveRef: prop_types_default.a.func
+};
+
+TabBarTabsNode_TabBarTabsNode.defaultProps = {
+  panels: [],
+  prefixCls: [],
+  tabBarGutter: null,
+  onTabClick: function onTabClick() {},
+  saveRef: function saveRef() {}
+};
+// CONCATENATED MODULE: ../node_modules/rc-tabs/es/TabBarRootNode.js
+
+
+
+
+
+
+
+
+
+
+
+
+var TabBarRootNode_TabBarRootNode = function (_React$Component) {
+  inherits_default()(TabBarRootNode, _React$Component);
+
+  function TabBarRootNode() {
+    classCallCheck_default()(this, TabBarRootNode);
+
+    return possibleConstructorReturn_default()(this, (TabBarRootNode.__proto__ || Object.getPrototypeOf(TabBarRootNode)).apply(this, arguments));
+  }
+
+  createClass_default()(TabBarRootNode, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          prefixCls = _props.prefixCls,
+          onKeyDown = _props.onKeyDown,
+          className = _props.className,
+          extraContent = _props.extraContent,
+          style = _props.style,
+          tabBarPosition = _props.tabBarPosition,
+          children = _props.children,
+          restProps = objectWithoutProperties_default()(_props, ['prefixCls', 'onKeyDown', 'className', 'extraContent', 'style', 'tabBarPosition', 'children']);
+
+      var cls = classnames_default()(prefixCls + '-bar', defineProperty_default()({}, className, !!className));
+      var topOrBottom = tabBarPosition === 'top' || tabBarPosition === 'bottom';
+      var tabBarExtraContentStyle = topOrBottom ? { float: 'right' } : {};
+      var extraContentStyle = extraContent && extraContent.props ? extraContent.props.style : {};
+      var newChildren = children;
+      if (extraContent) {
+        newChildren = [Object(react["cloneElement"])(extraContent, {
+          key: 'extra',
+          style: extends_default()({}, tabBarExtraContentStyle, extraContentStyle)
+        }), Object(react["cloneElement"])(children, { key: 'content' })];
+        newChildren = topOrBottom ? newChildren : newChildren.reverse();
       }
-      var key = child.key;
-      var cls = activeKey === key ? prefixCls + '-tab-active' : '';
-      cls += ' ' + prefixCls + '-tab';
-      var events = {};
-      if (child.props.disabled) {
-        cls += ' ' + prefixCls + '-tab-disabled';
-      } else {
-        events = {
-          onClick: function onClick(e) {
-            return _this.onTabClick.call(_this, key, e);
-          }
-        };
-      }
-      var ref = {};
-      if (activeKey === key) {
-        ref.ref = _this.saveRef('activeTab');
-      }
-      browser_default()('tab' in child.props, 'There must be `tab` property on children of Tabs.');
-      rst.push(react_default.a.createElement(
+      return react_default.a.createElement(
         'div',
         extends_default()({
-          role: 'tab',
-          'aria-disabled': child.props.disabled ? 'true' : 'false',
-          'aria-selected': activeKey === key ? 'true' : 'false'
-        }, events, {
+          role: 'tablist',
           className: cls,
-          key: key,
-          style: { marginRight: tabBarGutter && index === children.length - 1 ? 0 : tabBarGutter }
-        }, ref),
-        child.props.tab
-      ));
-    });
-
-    return rst;
-  },
-  getRootNode: function getRootNode(contents) {
-    var _props2 = this.props,
-        prefixCls = _props2.prefixCls,
-        onKeyDown = _props2.onKeyDown,
-        className = _props2.className,
-        extraContent = _props2.extraContent,
-        style = _props2.style,
-        tabBarPosition = _props2.tabBarPosition,
-        restProps = objectWithoutProperties_default()(_props2, ['prefixCls', 'onKeyDown', 'className', 'extraContent', 'style', 'tabBarPosition']);
-
-    var cls = classnames_default()(prefixCls + '-bar', defineProperty_default()({}, className, !!className));
-    var topOrBottom = tabBarPosition === 'top' || tabBarPosition === 'bottom';
-    var tabBarExtraContentStyle = topOrBottom ? { float: 'right' } : {};
-    var extraContentStyle = extraContent && extraContent.props ? extraContent.props.style : {};
-    var children = contents;
-    if (extraContent) {
-      children = [Object(react["cloneElement"])(extraContent, {
-        key: 'extra',
-        style: extends_default()({}, tabBarExtraContentStyle, extraContentStyle)
-      }), Object(react["cloneElement"])(contents, { key: 'content' })];
-      children = topOrBottom ? children : children.reverse();
+          tabIndex: '0',
+          ref: this.props.saveRef('root'),
+          onKeyDown: onKeyDown,
+          style: style
+        }, getDataAttr(restProps)),
+        newChildren
+      );
     }
-    return react_default.a.createElement(
-      'div',
-      extends_default()({
-        role: 'tablist',
-        className: cls,
-        tabIndex: '0',
-        ref: this.saveRef('root'),
-        onKeyDown: onKeyDown,
-        style: style
-      }, getDataAttr(restProps)),
-      children
-    );
-  }
-});
-// CONCATENATED MODULE: ../node_modules/rc-tabs/es/RefMixin.js
-/* harmony default export */ var RefMixin = ({
-  saveRef: function saveRef(name) {
-    var _this = this;
+  }]);
 
-    return function (node) {
-      _this[name] = node;
+  return TabBarRootNode;
+}(react_default.a.Component);
+
+/* harmony default export */ var es_TabBarRootNode = (TabBarRootNode_TabBarRootNode);
+
+
+TabBarRootNode_TabBarRootNode.propTypes = {
+  prefixCls: prop_types_default.a.string,
+  className: prop_types_default.a.string,
+  style: prop_types_default.a.object,
+  tabBarPosition: prop_types_default.a.oneOf(['left', 'right', 'top', 'bottom']),
+  children: prop_types_default.a.node,
+  extraContent: prop_types_default.a.node,
+  onKeyDown: prop_types_default.a.func,
+  saveRef: prop_types_default.a.func
+};
+
+TabBarRootNode_TabBarRootNode.defaultProps = {
+  prefixCls: '',
+  className: '',
+  style: {},
+  tabBarPosition: 'top',
+  extraContent: null,
+  children: null,
+  onKeyDown: function onKeyDown() {},
+  saveRef: function saveRef() {}
+};
+// EXTERNAL MODULE: ../node_modules/lodash/debounce.js
+var debounce = __webpack_require__("CXfR");
+var debounce_default = /*#__PURE__*/__webpack_require__.n(debounce);
+
+// CONCATENATED MODULE: ../node_modules/rc-tabs/es/ScrollableTabBarNode.js
+
+
+
+
+
+
+
+
+
+
+
+
+var ScrollableTabBarNode_ScrollableTabBarNode = function (_React$Component) {
+  inherits_default()(ScrollableTabBarNode, _React$Component);
+
+  function ScrollableTabBarNode(props) {
+    classCallCheck_default()(this, ScrollableTabBarNode);
+
+    var _this = possibleConstructorReturn_default()(this, (ScrollableTabBarNode.__proto__ || Object.getPrototypeOf(ScrollableTabBarNode)).call(this, props));
+
+    _this.prevTransitionEnd = function (e) {
+      if (e.propertyName !== 'opacity') {
+        return;
+      }
+      var container = _this.props.getRef('container');
+      _this.scrollToActiveTab({
+        target: container,
+        currentTarget: container
+      });
     };
+
+    _this.scrollToActiveTab = function (e) {
+      var activeTab = _this.props.getRef('activeTab');
+      var navWrap = _this.props.getRef('navWrap');
+      if (e && e.target !== e.currentTarget || !activeTab) {
+        return;
+      }
+
+            var needToSroll = _this.isNextPrevShown() && _this.lastNextPrevShown;
+      _this.lastNextPrevShown = _this.isNextPrevShown();
+      if (!needToSroll) {
+        return;
+      }
+
+      var activeTabWH = _this.getScrollWH(activeTab);
+      var navWrapNodeWH = _this.getOffsetWH(navWrap);
+      var offset = _this.offset;
+
+      var wrapOffset = _this.getOffsetLT(navWrap);
+      var activeTabOffset = _this.getOffsetLT(activeTab);
+      if (wrapOffset > activeTabOffset) {
+        offset += wrapOffset - activeTabOffset;
+        _this.setOffset(offset);
+      } else if (wrapOffset + navWrapNodeWH < activeTabOffset + activeTabWH) {
+        offset -= activeTabOffset + activeTabWH - (wrapOffset + navWrapNodeWH);
+        _this.setOffset(offset);
+      }
+    };
+
+    _this.prev = function (e) {
+      _this.props.onPrevClick(e);
+      var navWrapNode = _this.props.getRef('navWrap');
+      var navWrapNodeWH = _this.getOffsetWH(navWrapNode);
+      var offset = _this.offset;
+
+      _this.setOffset(offset + navWrapNodeWH);
+    };
+
+    _this.next = function (e) {
+      _this.props.onNextClick(e);
+      var navWrapNode = _this.props.getRef('navWrap');
+      var navWrapNodeWH = _this.getOffsetWH(navWrapNode);
+      var offset = _this.offset;
+
+      _this.setOffset(offset - navWrapNodeWH);
+    };
+
+    _this.offset = 0;
+
+    _this.state = {
+      next: false,
+      prev: false
+    };
+    return _this;
   }
-});
+
+  createClass_default()(ScrollableTabBarNode, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      this.componentDidUpdate();
+      this.debouncedResize = debounce_default()(function () {
+        _this2.setNextPrev();
+        _this2.scrollToActiveTab();
+      }, 200);
+      this.resizeEvent = addEventListenerWrap(window, 'resize', this.debouncedResize);
+    }
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate(prevProps) {
+      var props = this.props;
+      if (prevProps && prevProps.tabBarPosition !== props.tabBarPosition) {
+        this.setOffset(0);
+        return;
+      }
+      var nextPrev = this.setNextPrev();
+            
+      if (this.isNextPrevShown(this.state) !== this.isNextPrevShown(nextPrev)) {
+        this.setState({}, this.scrollToActiveTab);
+      } else if (!prevProps || props.activeKey !== prevProps.activeKey) {
+                this.scrollToActiveTab();
+      }
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      if (this.resizeEvent) {
+        this.resizeEvent.remove();
+      }
+      if (this.debouncedResize && this.debouncedResize.cancel) {
+        this.debouncedResize.cancel();
+      }
+    }
+  }, {
+    key: 'setNextPrev',
+    value: function setNextPrev() {
+      var navNode = this.props.getRef('nav');
+      var navNodeWH = this.getScrollWH(navNode);
+      var containerWH = this.getOffsetWH(this.props.getRef('container'));
+      var navWrapNodeWH = this.getOffsetWH(this.props.getRef('navWrap'));
+      var offset = this.offset;
+
+      var minOffset = containerWH - navNodeWH;
+      var _state = this.state,
+          next = _state.next,
+          prev = _state.prev;
+
+      if (minOffset >= 0) {
+        next = false;
+        this.setOffset(0, false);
+        offset = 0;
+      } else if (minOffset < offset) {
+        next = true;
+      } else {
+        next = false;
+                                var realOffset = navWrapNodeWH - navNodeWH;
+        this.setOffset(realOffset, false);
+        offset = realOffset;
+      }
+
+      if (offset < 0) {
+        prev = true;
+      } else {
+        prev = false;
+      }
+
+      this.setNext(next);
+      this.setPrev(prev);
+      return {
+        next: next,
+        prev: prev
+      };
+    }
+  }, {
+    key: 'getOffsetWH',
+    value: function getOffsetWH(node) {
+      var tabBarPosition = this.props.tabBarPosition;
+      var prop = 'offsetWidth';
+      if (tabBarPosition === 'left' || tabBarPosition === 'right') {
+        prop = 'offsetHeight';
+      }
+      return node[prop];
+    }
+  }, {
+    key: 'getScrollWH',
+    value: function getScrollWH(node) {
+      var tabBarPosition = this.props.tabBarPosition;
+      var prop = 'scrollWidth';
+      if (tabBarPosition === 'left' || tabBarPosition === 'right') {
+        prop = 'scrollHeight';
+      }
+      return node[prop];
+    }
+  }, {
+    key: 'getOffsetLT',
+    value: function getOffsetLT(node) {
+      var tabBarPosition = this.props.tabBarPosition;
+      var prop = 'left';
+      if (tabBarPosition === 'left' || tabBarPosition === 'right') {
+        prop = 'top';
+      }
+      return node.getBoundingClientRect()[prop];
+    }
+  }, {
+    key: 'setOffset',
+    value: function setOffset(offset) {
+      var checkNextPrev = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+      var target = Math.min(0, offset);
+      if (this.offset !== target) {
+        this.offset = target;
+        var navOffset = {};
+        var tabBarPosition = this.props.tabBarPosition;
+        var navStyle = this.props.getRef('nav').style;
+        var transformSupported = isTransformSupported(navStyle);
+        if (tabBarPosition === 'left' || tabBarPosition === 'right') {
+          if (transformSupported) {
+            navOffset = {
+              value: 'translate3d(0,' + target + 'px,0)'
+            };
+          } else {
+            navOffset = {
+              name: 'top',
+              value: target + 'px'
+            };
+          }
+        } else {
+          if (transformSupported) {
+            navOffset = {
+              value: 'translate3d(' + target + 'px,0,0)'
+            };
+          } else {
+            navOffset = {
+              name: 'left',
+              value: target + 'px'
+            };
+          }
+        }
+        if (transformSupported) {
+          setTransform(navStyle, navOffset.value);
+        } else {
+          navStyle[navOffset.name] = navOffset.value;
+        }
+        if (checkNextPrev) {
+          this.setNextPrev();
+        }
+      }
+    }
+  }, {
+    key: 'setPrev',
+    value: function setPrev(v) {
+      if (this.state.prev !== v) {
+        this.setState({
+          prev: v
+        });
+      }
+    }
+  }, {
+    key: 'setNext',
+    value: function setNext(v) {
+      if (this.state.next !== v) {
+        this.setState({
+          next: v
+        });
+      }
+    }
+  }, {
+    key: 'isNextPrevShown',
+    value: function isNextPrevShown(state) {
+      if (state) {
+        return state.next || state.prev;
+      }
+      return this.state.next || this.state.prev;
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _classnames, _classnames2, _classnames3, _classnames4;
+
+      var _state2 = this.state,
+          next = _state2.next,
+          prev = _state2.prev;
+      var _props = this.props,
+          prefixCls = _props.prefixCls,
+          scrollAnimated = _props.scrollAnimated,
+          navWrapper = _props.navWrapper;
+
+      var showNextPrev = prev || next;
+
+      var prevButton = react_default.a.createElement(
+        'span',
+        {
+          onClick: prev ? this.prev : null,
+          unselectable: 'unselectable',
+          className: classnames_default()((_classnames = {}, defineProperty_default()(_classnames, prefixCls + '-tab-prev', 1), defineProperty_default()(_classnames, prefixCls + '-tab-btn-disabled', !prev), defineProperty_default()(_classnames, prefixCls + '-tab-arrow-show', showNextPrev), _classnames)),
+          onTransitionEnd: this.prevTransitionEnd
+        },
+        react_default.a.createElement('span', { className: prefixCls + '-tab-prev-icon' })
+      );
+
+      var nextButton = react_default.a.createElement(
+        'span',
+        {
+          onClick: next ? this.next : null,
+          unselectable: 'unselectable',
+          className: classnames_default()((_classnames2 = {}, defineProperty_default()(_classnames2, prefixCls + '-tab-next', 1), defineProperty_default()(_classnames2, prefixCls + '-tab-btn-disabled', !next), defineProperty_default()(_classnames2, prefixCls + '-tab-arrow-show', showNextPrev), _classnames2))
+        },
+        react_default.a.createElement('span', { className: prefixCls + '-tab-next-icon' })
+      );
+
+      var navClassName = prefixCls + '-nav';
+      var navClasses = classnames_default()((_classnames3 = {}, defineProperty_default()(_classnames3, navClassName, true), defineProperty_default()(_classnames3, scrollAnimated ? navClassName + '-animated' : navClassName + '-no-animated', true), _classnames3));
+
+      return react_default.a.createElement(
+        'div',
+        {
+          className: classnames_default()((_classnames4 = {}, defineProperty_default()(_classnames4, prefixCls + '-nav-container', 1), defineProperty_default()(_classnames4, prefixCls + '-nav-container-scrolling', showNextPrev), _classnames4)),
+          key: 'container',
+          ref: this.props.saveRef('container')
+        },
+        prevButton,
+        nextButton,
+        react_default.a.createElement(
+          'div',
+          { className: prefixCls + '-nav-wrap', ref: this.props.saveRef('navWrap') },
+          react_default.a.createElement(
+            'div',
+            { className: prefixCls + '-nav-scroll' },
+            react_default.a.createElement(
+              'div',
+              { className: navClasses, ref: this.props.saveRef('nav') },
+              navWrapper(this.props.children)
+            )
+          )
+        )
+      );
+    }
+  }]);
+
+  return ScrollableTabBarNode;
+}(react_default.a.Component);
+
+/* harmony default export */ var es_ScrollableTabBarNode = (ScrollableTabBarNode_ScrollableTabBarNode);
+
+
+ScrollableTabBarNode_ScrollableTabBarNode.propTypes = {
+  getRef: prop_types_default.a.func.isRequired,
+  saveRef: prop_types_default.a.func.isRequired,
+  tabBarPosition: prop_types_default.a.oneOf(['left', 'right', 'top', 'bottom']),
+  prefixCls: prop_types_default.a.string,
+  scrollAnimated: prop_types_default.a.bool,
+  onPrevClick: prop_types_default.a.func,
+  onNextClick: prop_types_default.a.func,
+  navWrapper: prop_types_default.a.func,
+  children: prop_types_default.a.node
+};
+
+ScrollableTabBarNode_ScrollableTabBarNode.defaultProps = {
+  tabBarPosition: 'left',
+  prefixCls: '',
+  scrollAnimated: true,
+  onPrevClick: function onPrevClick() {},
+  onNextClick: function onNextClick() {},
+  navWrapper: function navWrapper(ele) {
+    return ele;
+  }
+};
+// CONCATENATED MODULE: ../node_modules/rc-tabs/es/SaveRef.js
+
+
+
+
+
+
+
+var SaveRef_SaveRef = function (_React$Component) {
+  inherits_default()(SaveRef, _React$Component);
+
+  function SaveRef() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    classCallCheck_default()(this, SaveRef);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = possibleConstructorReturn_default()(this, (_ref = SaveRef.__proto__ || Object.getPrototypeOf(SaveRef)).call.apply(_ref, [this].concat(args))), _this), _this.getRef = function (name) {
+      return _this[name];
+    }, _this.saveRef = function (name) {
+      return function (node) {
+        if (node) {
+          _this[name] = node;
+        }
+      };
+    }, _temp), possibleConstructorReturn_default()(_this, _ret);
+  }
+
+  createClass_default()(SaveRef, [{
+    key: 'render',
+    value: function render() {
+      return this.props.children(this.saveRef, this.getRef);
+    }
+  }]);
+
+  return SaveRef;
+}(react_default.a.Component);
+
+/* harmony default export */ var es_SaveRef = (SaveRef_SaveRef);
+
+
+SaveRef_SaveRef.propTypes = {
+  children: prop_types_default.a.func
+};
+
+SaveRef_SaveRef.defaultProps = {
+  children: function children() {
+    return null;
+  }
+};
 // CONCATENATED MODULE: ../node_modules/rc-tabs/es/ScrollableInkTabBar.js
 
 
@@ -30610,18 +29917,49 @@ var browser_default = /*#__PURE__*/__webpack_require__.n(browser);
 
 
 
-var ScrollableInkTabBar = create_react_class_default()({
-  displayName: 'ScrollableInkTabBar',
-  mixins: [RefMixin, TabBarMixin, InkTabBarMixin, ScrollableTabBarMixin],
-  render: function render() {
-    var inkBarNode = this.getInkBarNode();
-    var tabs = this.getTabs();
-    var scrollbarNode = this.getScrollBarNode([inkBarNode, tabs]);
-    return this.getRootNode(scrollbarNode);
-  }
-});
 
-/* harmony default export */ var es_ScrollableInkTabBar = (ScrollableInkTabBar);
+
+
+
+
+
+var ScrollableInkTabBar_ScrollableInkTabBar = function (_React$Component) {
+  inherits_default()(ScrollableInkTabBar, _React$Component);
+
+  function ScrollableInkTabBar() {
+    classCallCheck_default()(this, ScrollableInkTabBar);
+
+    return possibleConstructorReturn_default()(this, (ScrollableInkTabBar.__proto__ || Object.getPrototypeOf(ScrollableInkTabBar)).apply(this, arguments));
+  }
+
+  createClass_default()(ScrollableInkTabBar, [{
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
+
+      return react_default.a.createElement(
+        es_SaveRef,
+        null,
+        function (saveRef, getRef) {
+          return react_default.a.createElement(
+            es_TabBarRootNode,
+            extends_default()({ saveRef: saveRef }, _this2.props),
+            react_default.a.createElement(
+              es_ScrollableTabBarNode,
+              extends_default()({ saveRef: saveRef, getRef: getRef }, _this2.props),
+              react_default.a.createElement(es_TabBarTabsNode, extends_default()({ saveRef: saveRef }, _this2.props)),
+              react_default.a.createElement(es_InkTabBarNode, extends_default()({ saveRef: saveRef, getRef: getRef }, _this2.props))
+            )
+          );
+        }
+      );
+    }
+  }]);
+
+  return ScrollableInkTabBar;
+}(react_default.a.Component);
+
+/* harmony default export */ var es_ScrollableInkTabBar = (ScrollableInkTabBar_ScrollableInkTabBar);
 // EXTERNAL MODULE: ../node_modules/antd/node_modules/warning/warning.js
 var warning = __webpack_require__("/0+/");
 var warning_default = /*#__PURE__*/__webpack_require__.n(warning);
@@ -31280,6 +30618,8 @@ var card_Card = function (_React$Component) {
                 prefixCls = _a$prefixCls === undefined ? 'ant-card' : _a$prefixCls,
                 className = _a.className,
                 extra = _a.extra,
+                _a$headStyle = _a.headStyle,
+                headStyle = _a$headStyle === undefined ? {} : _a$headStyle,
                 _a$bodyStyle = _a.bodyStyle,
                 bodyStyle = _a$bodyStyle === undefined ? {} : _a$bodyStyle,
                 noHovering = _a.noHovering,
@@ -31295,7 +30635,7 @@ var card_Card = function (_React$Component) {
                 children = _a.children,
                 activeTabKey = _a.activeTabKey,
                 defaultActiveTabKey = _a.defaultActiveTabKey,
-                others = card___rest(_a, ["prefixCls", "className", "extra", "bodyStyle", "noHovering", "hoverable", "title", "loading", "bordered", "type", "cover", "actions", "tabList", "children", "activeTabKey", "defaultActiveTabKey"]);
+                others = card___rest(_a, ["prefixCls", "className", "extra", "headStyle", "bodyStyle", "noHovering", "hoverable", "title", "loading", "bordered", "type", "cover", "actions", "tabList", "children", "activeTabKey", "defaultActiveTabKey"]);
             var classString = classnames_default()(prefixCls, className, (_classNames = {}, defineProperty_default()(_classNames, prefixCls + "-loading", loading), defineProperty_default()(_classNames, prefixCls + "-bordered", bordered), defineProperty_default()(_classNames, prefixCls + "-hoverable", this.getCompatibleHoverable()), defineProperty_default()(_classNames, prefixCls + "-wider-padding", this.state.widerPadding), defineProperty_default()(_classNames, prefixCls + "-padding-transition", this.updateWiderPaddingCalled), defineProperty_default()(_classNames, prefixCls + "-contain-grid", this.isContainGrid()), defineProperty_default()(_classNames, prefixCls + "-contain-tabs", tabList && tabList.length), defineProperty_default()(_classNames, prefixCls + "-type-" + type, !!type), _classNames));
             var loadingBlockStyle = bodyStyle.padding === 0 || bodyStyle.padding === '0px' ? { padding: 24 } : undefined;
             var loadingBlock = react["createElement"](
@@ -31404,7 +30744,7 @@ var card_Card = function (_React$Component) {
             if (title || extra || tabs) {
                 head = react["createElement"](
                     "div",
-                    { className: prefixCls + "-head" },
+                    { className: prefixCls + "-head", style: headStyle },
                     react["createElement"](
                         "div",
                         { className: prefixCls + "-head-wrapper" },
@@ -39657,6 +38997,7 @@ function util_saveRef(instance, name) {
 
 
 
+
 var DropdownMenu_DropdownMenu = function (_React$Component) {
   inherits_default()(DropdownMenu, _React$Component);
 
@@ -39826,7 +39167,11 @@ var DropdownMenu__initialiseProps = function _initialiseProps() {
         scrollIntoViewOpts.alignWithTop = true;
       }
 
-      dom_scroll_into_view_lib_default()(itemComponent, Object(react_dom["findDOMNode"])(_this3.menuRef), scrollIntoViewOpts);
+      // Delay to scroll since current frame item position is not ready when pre view is by filter
+      // https://github.com/ant-design/ant-design/issues/11268#issuecomment-406634462
+      raf_default()(function () {
+        dom_scroll_into_view_lib_default()(itemComponent, Object(react_dom["findDOMNode"])(_this3.menuRef), scrollIntoViewOpts);
+      });
     }
   };
 };
@@ -40059,6 +39404,7 @@ function valueType(props, propName, componentName) {
 }
 
 var SelectPropTypes = {
+  id: prop_types_default.a.string,
   defaultActiveFirstOption: prop_types_default.a.bool,
   multiple: prop_types_default.a.bool,
   filterOption: prop_types_default.a.any,
@@ -40262,7 +39608,6 @@ var Select_Select = function (_React$Component) {
         prefixCls = props.prefixCls;
 
     var ctrlNode = this.renderTopControlNode();
-    var extraSelectionProps = {};
     var open = this.state.open;
 
     if (open) {
@@ -40270,11 +39615,18 @@ var Select_Select = function (_React$Component) {
     }
     var realOpen = this.getRealOpenState();
     var options = this._options || [];
+    var dataOrAriaAttributeProps = {};
+    for (var key in props) {
+      if (props.hasOwnProperty(key) && (key.substr(0, 5) === 'data-' || key.substr(0, 5) === 'aria-' || key === 'role')) {
+        dataOrAriaAttributeProps[key] = props[key];
+      }
+    }
+    var extraSelectionProps = extends_default()({}, dataOrAriaAttributeProps);
     if (!isMultipleOrTagsOrCombobox(props)) {
-      extraSelectionProps = {
+      extraSelectionProps = extends_default()({}, extraSelectionProps, {
         onKeyDown: this.onKeyDown,
         tabIndex: props.disabled ? -1 : 0
-      };
+      });
     }
     var rootCls = (_rootCls = {}, _rootCls[className] = !!className, _rootCls[prefixCls] = 1, _rootCls[prefixCls + '-open'] = open, _rootCls[prefixCls + '-focused'] = open || !!this._focused, _rootCls[prefixCls + '-combobox'] = isCombobox(props), _rootCls[prefixCls + '-disabled'] = disabled, _rootCls[prefixCls + '-enabled'] = !disabled, _rootCls[prefixCls + '-allow-clear'] = !!props.allowClear, _rootCls[prefixCls + '-no-arrow'] = !props.showArrow, _rootCls);
     return react_default.a.createElement(
@@ -40313,6 +39665,7 @@ var Select_Select = function (_React$Component) {
       react_default.a.createElement(
         'div',
         {
+          id: props.id,
           style: props.style,
           ref: this.saveRootRef,
           onBlur: this.onOuterBlur,
@@ -46629,23 +45982,75 @@ var table_Table_Table = function (_React$Component) {
             var defaultSelection = _this.store.getState().selectionDirty ? [] : _this.getDefaultSelection();
             var selectedRowKeys = _this.store.getState().selectedRowKeys.concat(defaultSelection);
             var key = _this.getRecordKey(record, rowIndex);
-            if (checked) {
-                selectedRowKeys.push(_this.getRecordKey(record, rowIndex));
-            } else {
-                selectedRowKeys = selectedRowKeys.filter(function (i) {
-                    return key !== i;
+            var pivot = _this.state.pivot;
+            var rows = _this.getFlatCurrentPageData();
+            var realIndex = rowIndex;
+            if (_this.props.expandedRowRender) {
+                realIndex = rows.findIndex(function (row) {
+                    return _this.getRecordKey(row, rowIndex) === key;
                 });
             }
-            _this.store.setState({
-                selectionDirty: true
-            });
-            _this.setSelectedRowKeys(selectedRowKeys, {
-                selectWay: 'onSelect',
-                record: record,
-                checked: checked,
-                changeRowKeys: void 0,
-                nativeEvent: nativeEvent
-            });
+            if (nativeEvent.shiftKey && pivot !== undefined && realIndex !== pivot) {
+                var changeRowKeys = [];
+                var direction = Math.sign(pivot - realIndex);
+                var dist = Math.abs(pivot - realIndex);
+                var step = 0;
+
+                var _loop = function _loop() {
+                    var i = realIndex + step * direction;
+                    step += 1;
+                    var row = rows[i];
+                    var rowKey = _this.getRecordKey(row, i);
+                    var checkboxProps = _this.getCheckboxPropsByItem(row, i);
+                    if (!checkboxProps.disabled) {
+                        if (selectedRowKeys.includes(rowKey)) {
+                            if (!checked) {
+                                selectedRowKeys = selectedRowKeys.filter(function (j) {
+                                    return rowKey !== j;
+                                });
+                                changeRowKeys.push(rowKey);
+                            }
+                        } else if (checked) {
+                            selectedRowKeys.push(rowKey);
+                            changeRowKeys.push(rowKey);
+                        }
+                    }
+                };
+
+                while (step <= dist) {
+                    _loop();
+                }
+                _this.setState({ pivot: realIndex });
+                _this.store.setState({
+                    selectionDirty: true
+                });
+                _this.setSelectedRowKeys(selectedRowKeys, {
+                    selectWay: 'onSelectMultiple',
+                    record: record,
+                    checked: checked,
+                    changeRowKeys: changeRowKeys,
+                    nativeEvent: nativeEvent
+                });
+            } else {
+                if (checked) {
+                    selectedRowKeys.push(_this.getRecordKey(record, realIndex));
+                } else {
+                    selectedRowKeys = selectedRowKeys.filter(function (i) {
+                        return key !== i;
+                    });
+                }
+                _this.setState({ pivot: realIndex });
+                _this.store.setState({
+                    selectionDirty: true
+                });
+                _this.setSelectedRowKeys(selectedRowKeys, {
+                    selectWay: 'onSelect',
+                    record: record,
+                    checked: checked,
+                    changeRowKeys: void 0,
+                    nativeEvent: nativeEvent
+                });
+            }
         };
         _this.handleRadioSelect = function (record, rowIndex, e) {
             var checked = e.target.checked;
@@ -46763,15 +46168,15 @@ var table_Table_Table = function (_React$Component) {
         };
         _this.renderSelectionBox = function (type) {
             return function (_, record, index) {
-                var rowIndex = _this.getRecordKey(record, index); // 从 1 开始
+                var rowKey = _this.getRecordKey(record, index);
                 var props = _this.getCheckboxPropsByItem(record, index);
                 var handleChange = function handleChange(e) {
-                    type === 'radio' ? _this.handleRadioSelect(record, rowIndex, e) : _this.handleSelect(record, rowIndex, e);
+                    type === 'radio' ? _this.handleRadioSelect(record, index, e) : _this.handleSelect(record, index, e);
                 };
                 return react["createElement"](
                     'span',
                     { onClick: stopPropagation },
-                    react["createElement"](table_SelectionBox, extends_default()({ type: type, store: _this.store, rowIndex: rowIndex, onChange: handleChange, defaultSelection: _this.getDefaultSelection() }, props))
+                    react["createElement"](table_SelectionBox, extends_default()({ type: type, store: _this.store, rowIndex: rowKey, onChange: handleChange, defaultSelection: _this.getDefaultSelection() }, props))
                 );
             };
         };
@@ -46826,7 +46231,7 @@ var table_Table_Table = function (_React$Component) {
         _this.createComponents(props.components);
         _this.state = extends_default()({}, _this.getDefaultSortOrder(_this.columns), {
             // 减少状态
-            filters: _this.getFiltersFromColumns(), pagination: _this.getDefaultPagination(props) });
+            filters: _this.getFiltersFromColumns(), pagination: _this.getDefaultPagination(props), pivot: undefined });
         _this.CheckboxPropsCache = {};
         _this.store = createStore({
             selectedRowKeys: getRowSelection(props).selectedRowKeys || [],
@@ -46926,11 +46331,16 @@ var table_Table_Table = function (_React$Component) {
             }
             if (selectWay === 'onSelect' && rowSelection.onSelect) {
                 rowSelection.onSelect(record, checked, selectedRows, nativeEvent);
-            } else if (selectWay === 'onSelectAll' && rowSelection.onSelectAll) {
+            } else if (selectWay === 'onSelectMultiple' && rowSelection.onSelectMultiple) {
                 var changeRows = data.filter(function (row, i) {
                     return changeRowKeys.indexOf(_this3.getRecordKey(row, i)) >= 0;
                 });
-                rowSelection.onSelectAll(checked, selectedRows, changeRows);
+                rowSelection.onSelectMultiple(checked, selectedRows, changeRows);
+            } else if (selectWay === 'onSelectAll' && rowSelection.onSelectAll) {
+                var _changeRows = data.filter(function (row, i) {
+                    return changeRowKeys.indexOf(_this3.getRecordKey(row, i)) >= 0;
+                });
+                rowSelection.onSelectAll(checked, selectedRows, _changeRows);
             } else if (selectWay === 'onSelectInvert' && rowSelection.onSelectInvert) {
                 rowSelection.onSelectInvert(selectedRowKeys);
             }
@@ -47094,13 +46504,14 @@ var table_Table_Table = function (_React$Component) {
                     render: this.renderSelectionBox(rowSelection.type),
                     className: selectionColumnClass,
                     fixed: rowSelection.fixed,
-                    width: rowSelection.columnWidth
+                    width: rowSelection.columnWidth,
+                    title: rowSelection.columnTitle
                 };
                 if (rowSelection.type !== 'radio') {
                     var checkboxAllDisabled = data.every(function (item, index) {
                         return _this6.getCheckboxPropsByItem(item, index).disabled;
                     });
-                    selectionColumn.title = react["createElement"](table_SelectionCheckboxAll, { store: this.store, locale: locale, data: data, getCheckboxPropsByItem: this.getCheckboxPropsByItem, getRecordKey: this.getRecordKey, disabled: checkboxAllDisabled, prefixCls: prefixCls, onSelect: this.handleSelectRow, selections: rowSelection.selections, hideDefaultSelections: rowSelection.hideDefaultSelections, getPopupContainer: this.getPopupContainer });
+                    selectionColumn.title = selectionColumn.title || react["createElement"](table_SelectionCheckboxAll, { store: this.store, locale: locale, data: data, getCheckboxPropsByItem: this.getCheckboxPropsByItem, getRecordKey: this.getRecordKey, disabled: checkboxAllDisabled, prefixCls: prefixCls, onSelect: this.handleSelectRow, selections: rowSelection.selections, hideDefaultSelections: rowSelection.hideDefaultSelections, getPopupContainer: this.getPopupContainer });
                 }
                 if ('fixed' in rowSelection) {
                     selectionColumn.fixed = rowSelection.fixed;
@@ -47538,7 +46949,7 @@ var Notice_Notice = function (_Component) {
         props.closable ? react_default.a.createElement(
           'a',
           { tabIndex: '0', onClick: this.close, className: componentClass + '-close' },
-          react_default.a.createElement('span', { className: componentClass + '-close-x' })
+          props.closeIcon || react_default.a.createElement('span', { className: componentClass + '-close-x' })
         ) : null
       );
     }
@@ -47551,7 +46962,8 @@ Notice_Notice.propTypes = {
   duration: prop_types_default.a.number,
   onClose: prop_types_default.a.func,
   children: prop_types_default.a.any,
-  update: prop_types_default.a.bool
+  update: prop_types_default.a.bool,
+  closeIcon: prop_types_default.a.node
 };
 Notice_Notice.defaultProps = {
   onEnd: function onEnd() {},
@@ -47666,7 +47078,8 @@ var Notification_Notification = function (_Component) {
           }, notice, {
             key: key,
             update: update,
-            onClose: onClose
+            onClose: onClose,
+            closeIcon: props.closeIcon
           }),
           notice.content
         );
@@ -47692,7 +47105,8 @@ Notification_Notification.propTypes = {
   transitionName: prop_types_default.a.string,
   animation: prop_types_default.a.oneOfType([prop_types_default.a.string, prop_types_default.a.object]),
   style: prop_types_default.a.object,
-  maxCount: prop_types_default.a.number
+  maxCount: prop_types_default.a.number,
+  closeIcon: prop_types_default.a.node
 };
 Notification_Notification.defaultProps = {
   prefixCls: 'rc-notification',
@@ -47994,25 +47408,16 @@ var Input_Input = function (_React$Component) {
             var groupClassName = classnames_default()(props.prefixCls + '-group-wrapper', (_classNames3 = {}, defineProperty_default()(_classNames3, props.prefixCls + '-group-wrapper-sm', props.size === 'small'), defineProperty_default()(_classNames3, props.prefixCls + '-group-wrapper-lg', props.size === 'large'), _classNames3));
             // Need another wrapper for changing display:table to display:inline-block
             // and put style prop in wrapper
-            if (addonBefore || addonAfter) {
-                return react["createElement"](
-                    'span',
-                    { className: groupClassName, style: props.style },
-                    react["createElement"](
-                        'span',
-                        { className: className },
-                        addonBefore,
-                        react["cloneElement"](children, { style: null }),
-                        addonAfter
-                    )
-                );
-            }
             return react["createElement"](
                 'span',
-                { className: className },
-                addonBefore,
-                children,
-                addonAfter
+                { className: groupClassName, style: props.style },
+                react["createElement"](
+                    'span',
+                    { className: className },
+                    addonBefore,
+                    react["cloneElement"](children, { style: null }),
+                    addonAfter
+                )
             );
         }
     }, {
@@ -48114,7 +47519,7 @@ var Group_Group = function Group(props) {
     var cls = classnames_default()(prefixCls, (_classNames = {}, defineProperty_default()(_classNames, prefixCls + '-lg', props.size === 'large'), defineProperty_default()(_classNames, prefixCls + '-sm', props.size === 'small'), defineProperty_default()(_classNames, prefixCls + '-compact', props.compact), _classNames), className);
     return react["createElement"](
         'span',
-        { className: cls, style: props.style },
+        { className: cls, style: props.style, onMouseEnter: props.onMouseEnter, onMouseLeave: props.onMouseLeave, onFocus: props.onFocus, onBlur: props.onBlur },
         props.children
     );
 };
